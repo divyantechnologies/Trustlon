@@ -1,0 +1,27 @@
+{
+  "name": "trustlon",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Trustlon Marketplace monorepo",
+  "workspaces": [
+    "backend/*",
+    "frontend/*"
+  ],
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:migrate": "npm run prisma:migrate -w backend/api",
+    "dev:api": "npm run start:dev -w backend/api",
+    "dev:storefront": "npm run dev -w frontend/storefront",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
+  }
+}

@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: trustlon-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: trustlon
+      POSTGRES_PASSWORD: trustlon
+      POSTGRES_DB: trustlon
+    ports:
+      - "5432:5432"
+    volumes:
+      - trustlon-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trustlon"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  trustlon-pgdata:
