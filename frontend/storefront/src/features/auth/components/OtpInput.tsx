@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Button } from '@/components/ui';
+import { layouts, Alert, Button, cx, inputClass } from '@/design-system';
 import { useI18n } from '@/lib/i18n/language-provider';
 import { maskIdentifier } from '../schemas';
 
@@ -67,11 +67,7 @@ function CodeBoxes({
             if (event.key === 'ArrowLeft' && index > 0) refs.current[index - 1]?.focus();
             if (event.key === 'ArrowRight' && index < LENGTH - 1) refs.current[index + 1]?.focus();
           }}
-          className={`aspect-square w-full rounded-lg border bg-white text-center text-xl font-semibold text-navy shadow-sm outline-none transition focus:ring-4 disabled:bg-slate-50 ${
-            invalid
-              ? 'border-red-500 focus:ring-red-500/15'
-              : 'border-slate-300 focus:border-teal focus:ring-teal/15'
-          }`}
+          className={cx(inputClass(Boolean(invalid)), 'min-w-0 text-center font-semibold')}
         />
       ))}
     </div>
@@ -128,7 +124,7 @@ export function OtpInput({
   return (
     <form
       noValidate
-      className="space-y-6"
+      className={layouts.spaciousForm}
       onSubmit={(event) => {
         event.preventDefault();
         if (complete) onSubmit(code);
@@ -150,13 +146,14 @@ export function OtpInput({
           </p>
           <p className="mt-0.5 text-sm text-slate-500">
             {format(t.otp.sentTo, { target: maskIdentifier(target) })}{' '}
-            <button
+            <Button
+              variant="link"
               type="button"
               onClick={onChangeTarget}
               className="font-medium text-teal-600 hover:underline"
             >
               {t.otp.change}
-            </button>
+            </Button>
           </p>
         </div>
       </div>

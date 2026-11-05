@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Alert, Button, Checkbox, PasswordField, PhoneField, TextField } from '@/components/ui';
+import { layouts, Alert, Button, Checkbox, PasswordField, PhoneField, TextField } from '@/design-system';
 import { toApiLanguage, useI18n } from '@/lib/i18n/language-provider';
 import { DEFAULT_COUNTRY, detectCountry, isCountryCode } from '@/lib/phone';
 import { authApi, type SignupDetails } from '../api';
@@ -179,7 +179,7 @@ export function SignupForm() {
   return (
     <div>
       {progress}
-      <form noValidate onSubmit={submitDetails} className="space-y-5">
+      <form noValidate onSubmit={submitDetails} className={layouts.form}>
         {error && <Alert>{error.message}</Alert>}
 
         <TextField

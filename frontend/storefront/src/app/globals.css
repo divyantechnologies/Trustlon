@@ -1,7 +1,15 @@
+@import '../design-system/styles/utilities.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-cream text-navy antialiased;
+@layer base {
+  body {
+    @apply bg-cream font-sans text-sm text-navy antialiased;
+  }
+
+  a:focus-visible {
+    @apply rounded-lg outline-none ring-2 ring-teal ring-offset-2;
+  }
 }

@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Alert, Button, PasswordField } from '@/components/ui';
+import { layouts, Alert, Button, PasswordField } from '@/design-system';
 import { useI18n } from '@/lib/i18n/language-provider';
 import { authApi } from '../api';
 import {
@@ -94,7 +94,7 @@ export function ResetStepper() {
       <StepProgress current={step} labels={[t.reset.step1, t.reset.step2, t.reset.step3]} />
 
       {step === 1 && (
-        <form noValidate onSubmit={sendCode} className="space-y-5">
+        <form noValidate onSubmit={sendCode} className={layouts.form}>
           {error && <Alert>{error.message}</Alert>}
           <IdentifierField form={idForm} />
           <Button type="submit" loading={busy}>
@@ -129,7 +129,7 @@ export function ResetStepper() {
       )}
 
       {step === 3 && (
-        <form noValidate onSubmit={save} className="space-y-5">
+        <form noValidate onSubmit={save} className={layouts.form}>
           {error && <Alert>{error.message}</Alert>}
           <div className="space-y-2">
             <PasswordField

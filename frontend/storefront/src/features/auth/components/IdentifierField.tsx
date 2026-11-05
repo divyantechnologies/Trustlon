@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import type { FieldErrors, UseFormReturn } from 'react-hook-form';
-import { Button, PhoneField, TextField } from '@/components/ui';
+import { Button, PhoneField, TextField } from '@/design-system';
 import { useI18n } from '@/lib/i18n/language-provider';
 import { detectCountry, isCountryCode, DEFAULT_COUNTRY } from '@/lib/phone';
 import type { IdentifierValues } from '../schemas';

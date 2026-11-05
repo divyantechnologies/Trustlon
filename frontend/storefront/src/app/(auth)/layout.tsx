@@ -1,5 +1,9 @@
-import { AuthShell } from '@/features/auth';
+import { AuthProvider, AuthShell } from '@/features/auth';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  return <AuthShell>{children}</AuthShell>;
+  return (
+    <AuthProvider>
+      <AuthShell>{children}</AuthShell>
+    </AuthProvider>
+  );
 }

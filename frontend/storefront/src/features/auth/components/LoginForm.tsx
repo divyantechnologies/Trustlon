@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Alert, Button, PasswordField } from '@/components/ui';
+import { layouts, Alert, Button, PasswordField } from '@/design-system';
 import { useI18n } from '@/lib/i18n/language-provider';
 import { authApi, type SessionResponse } from '../api';
 import { readGuestCartToken, useAuth } from '../auth-provider';
@@ -48,9 +48,9 @@ function LoginTabs({ value, onChange }: { value: Tab; onChange: (tab: Tab) => vo
           role="tab"
           aria-selected={value === tab.id}
           onClick={() => onChange(tab.id)}
-          className={`h-9 rounded-md text-sm font-medium transition ${
+          className={`h-11 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
             value === tab.id
-              ? 'bg-white text-navy shadow-sm ring-1 ring-slate-200'
+              ? 'bg-white text-teal-600 shadow-sm ring-1 ring-teal/30'
               : 'text-slate-500 hover:text-navy'
           }`}
         >
@@ -87,7 +87,7 @@ function PasswordLoginForm() {
   });
 
   return (
-    <form noValidate onSubmit={submit} className="space-y-5">
+    <form noValidate onSubmit={submit} className={layouts.form}>
       {error && <Alert>{error.message}</Alert>}
       <IdentifierField form={form} />
       <PasswordField
@@ -176,7 +176,7 @@ function OtpLoginForm() {
   }
 
   return (
-    <form noValidate onSubmit={send} className="space-y-5">
+    <form noValidate onSubmit={send} className={layouts.form}>
       {error && <Alert>{error.message}</Alert>}
       <IdentifierField form={form} />
       <Button type="submit" loading={busy}>
