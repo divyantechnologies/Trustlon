@@ -1,0 +1,75 @@
+enum ProductStatus {
+  DRAFT
+  PENDING_APPROVAL
+  LIVE
+  REJECTED
+  INACTIVE
+}
+
+model Category {
+  id               String   @id @default(uuid()) @db.Uuid
+  slug             String   @unique @db.VarChar(80)
+  name             String   @db.VarChar(80)
+  nameHi           String?  @map("name_hi") @db.VarChar(80)
+  imageUrl         String?  @map("image_url")
+  parentId         String?  @map("parent_id") @db.Uuid
+  sortOrder        Int      @default(0) @map("sort_order")
+  isActive         Boolean  @default(true) @map("is_active")
+  defaultHsn       String?  @map("default_hsn") @db.VarChar(8)
+  /// Commission in basis points (1000 = 10%). Null uses the platform default.
+  commissionBps    Int?     @map("commission_bps")
+  returnWindowDays Int      @default(7) @map("return_window_days")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  products Product[]
+
+  @@index([parentId, sortOrder])
+  @@map("categories")
+}
+
+model Product {
+  id          String        @id @default(uuid()) @db.Uuid
+  slug        String        @unique @db.VarChar(160)
+  vendorId    String        @map("vendor_id") @db.Uuid
+  categoryId  String        @map("category_id") @db.Uuid
+  name        String        @db.VarChar(200)
+  description String?
+  brand       String?       @db.VarChar(80)
+  imageUrl    String        @map("image_url")
+  images      String[]      @default([])
+  /// Selling price in paise.
+  pricePaise  Int           @map("price_paise")
+  /// Maximum retail price in paise.
+  mrpPaise    Int           @map("mrp_paise")
+  stock       Int           @default(0)
+  status      ProductStatus @default(DRAFT)
+  badge       String?       @db.VarChar(40)
+  hsnCode     String?       @map("hsn_code") @db.VarChar(8)
+  codAllowed  Boolean       @default(true) @map("cod_allowed")
+  /// Combo / bundle product shown in the home page "Combo products" row.
+  isBundle    Boolean       @default(false) @map("is_bundle")
+  ratingAvg   Float         @default(0) @map("rating_avg")
+  ratingCount Int           @default(0) @map("rating_count")
+  salesCount  Int           @default(0) @map("sales_count")
+  /// Lower-case name, brand, seller and category, kept by the API for search.
+  searchText  String        @default("") @map("search_text")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  deletedAt   DateTime?     @map("deleted_at")
+
+  vendor         Vendor           @relation(fields: [vendorId], references: [id])
+  category       Category         @relation(fields: [categoryId], references: [id])
+  deals          Deal[]
+  cartItems      CartItem[]
+  wishlistItems  WishlistItem[]
+  recentlyViewed RecentlyViewed[]
+
+  @@index([categoryId, status])
+  @@index([vendorId, status])
+  @@index([status, salesCount])
+  @@index([isBundle, status])
+  @@map("products")
+}

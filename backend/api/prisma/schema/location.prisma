@@ -1,0 +1,19 @@
+/// Pincode master: delivery serviceability and coordinates used for local seller distance.
+model Pincode {
+  pincode          String   @id @db.Char(6)
+  area             String?  @db.VarChar(120)
+  city             String   @db.VarChar(80)
+  state            String   @db.VarChar(60)
+  latitude         Float?
+  longitude        Float?
+  serviceable      Boolean  @default(true)
+  codAvailable     Boolean  @default(true) @map("cod_available")
+  sameDayAvailable Boolean  @default(false) @map("same_day_available")
+  deliveryDays     Int      @default(4) @map("delivery_days")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  vendors Vendor[]
+
+  @@index([latitude, longitude])
+  @@map("pincodes")
+}

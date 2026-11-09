@@ -1,0 +1,42 @@
+enum VendorStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+/// A seller on the marketplace. Trustlon's own brand is a vendor with isPlatformOwned = true.
+model Vendor {
+  id              String       @id @default(uuid()) @db.Uuid
+  slug            String       @unique @db.VarChar(80)
+  displayName     String       @map("display_name") @db.VarChar(120)
+  legalName       String?      @map("legal_name") @db.VarChar(200)
+  initials        String       @db.VarChar(4)
+  tagline         String?      @db.VarChar(160)
+  description     String?
+  logoUrl         String?      @map("logo_url")
+  bannerUrl       String?      @map("banner_url")
+  status          VendorStatus @default(PENDING)
+  kycApprovedAt   DateTime?    @map("kyc_approved_at")
+  isPlatformOwned Boolean      @default(false) @map("is_platform_owned")
+  isVerified      Boolean      @default(false) @map("is_verified")
+  /// 0 to 100, recalculated daily by the worker.
+  trustScore      Int          @default(0) @map("trust_score")
+  isFeatured      Boolean      @default(false) @map("is_featured")
+  featuredOrder   Int          @default(0) @map("featured_order")
+  pickupPincode   String?      @map("pickup_pincode") @db.Char(6)
+  localArea       String?      @map("local_area") @db.VarChar(120)
+  localCategory   String?      @map("local_category") @db.VarChar(120)
+  sameDayDelivery Boolean      @default(false) @map("same_day_delivery")
+  ownerId         String?      @map("owner_id") @db.Uuid
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  deletedAt       DateTime?    @map("deleted_at")
+
+  owner    User?     @relation("VendorOwner", fields: [ownerId], references: [id])
+  pickup   Pincode?  @relation(fields: [pickupPincode], references: [pincode])
+  products Product[]
+
+  @@index([status, isFeatured])
+  @@index([pickupPincode])
+  @@map("vendors")
+}

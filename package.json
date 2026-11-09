@@ -13,7 +13,8 @@
   "scripts": {
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
-    "db:migrate": "npm run prisma:migrate -w backend/api",
+    "db:migrate": "npm run prisma:migrate -w backend/api --",
+    "db:seed": "npm run prisma:seed -w backend/api",
     "dev:api": "npm run start:dev -w backend/api",
     "dev:storefront": "npm run dev -w frontend/storefront",
     "build": "npm run build --workspaces --if-present",
