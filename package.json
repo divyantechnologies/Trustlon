@@ -13,12 +13,15 @@
   "scripts": {
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
-    "db:migrate": "npm run prisma:migrate -w backend/api",
+    "db:generate": "npm run prisma:generate -w backend/api",
+    "db:migrate": "npm run prisma:migrate -w backend/api --",
+    "db:deploy": "npm run prisma:deploy -w backend/api",
     "dev:api": "npm run start:dev -w backend/api",
     "dev:storefront": "npm run dev -w frontend/storefront",
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
+    "test:e2e": "npm run test:e2e -w backend/api",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
   },
   "devDependencies": {

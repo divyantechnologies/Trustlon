@@ -25,7 +25,7 @@ export function ProductCard({ product }: { product: Product }) {
           />
         </button>
         <span className="absolute left-3 top-3 rounded bg-white px-2 py-1 text-[10px] font-semibold text-teal-600">
-          {discount(product)}% OFF
+          {product.discountText ?? `${discount(product)}% OFF`}
         </span>
         <button
           aria-label={`${saved ? 'Remove' : 'Save'} ${product.name} ${saved ? 'from' : 'to'} wishlist`}
@@ -48,6 +48,7 @@ export function ProductCard({ product }: { product: Product }) {
           <span className="flex shrink-0 items-center gap-1 text-teal-600">
             <Icon name="star" className="h-3 w-3 fill-current" />
             {product.rating}
+            {product.reviews !== undefined && <span className="text-slate-500">({product.reviews})</span>}
           </span>
         </div>
         <button
@@ -60,8 +61,8 @@ export function ProductCard({ product }: { product: Product }) {
           {product.name}
         </button>
         <div className="mb-3 flex flex-wrap items-baseline gap-2">
-          <span className="text-lg font-semibold">{formatPrice(product.price)}</span>
-          <del className="text-xs text-slate-500">{formatPrice(product.originalPrice)}</del>
+          <span className="text-lg font-semibold">{product.priceText ?? formatPrice(product.price)}</span>
+          <del className="text-xs text-slate-500">{product.originalText ?? formatPrice(product.originalPrice)}</del>
         </div>
         <p className="mb-4 flex items-center gap-1 text-[10px] text-slate-500">
           <Icon name="shield" className="h-3 w-3 text-teal-600" />

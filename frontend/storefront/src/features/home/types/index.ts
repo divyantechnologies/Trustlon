@@ -16,6 +16,10 @@ export interface Product {
   seller: string;
   isPlatformOwned: boolean;
   badge?: string;
+  priceText?: string;
+  originalText?: string;
+  discountText?: string;
+  reviews?: number;
 }
 export interface Banner {
   id: string;

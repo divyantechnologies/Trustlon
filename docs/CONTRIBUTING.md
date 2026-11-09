@@ -17,7 +17,7 @@ git commit -m "chore: set up monorepo structure and workflow"
 git push -u origin develop
 
 git checkout -b feature/storefront-customer-auth
-npm install
+npm ci
 npm run db:up
 npm run db:migrate -- --name init_customer_auth
 git add .
@@ -25,7 +25,7 @@ git commit -m "feat(auth): customer sign-up, login and password reset"
 git push -u origin feature/storefront-customer-auth
 ```
 
-`npm install` creates `package-lock.json` and the migration step creates the first migration folder. Both are committed with the feature, together with the CI workflow in `.github`, which needs both.
+`npm ci` installs both workspaces from the shared root `package-lock.json`. Use `npm install` when intentionally changing dependencies and commit the updated root lockfile. The migration step creates the first migration folder; commit it with the feature, because the CI workflow in `.github` needs migrations to initialize its test database. Follow the environment setup in the root README before running database commands.
 
 If the company repository already has commits on `main`, run `git pull origin main` before creating `develop`.
 

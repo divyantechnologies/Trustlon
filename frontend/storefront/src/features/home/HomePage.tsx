@@ -1,5 +1,6 @@
 'use client';
 import { HomeHeader } from './components/HomeHeader';
+import { ReferenceMarketplaceSections } from './components/ReferenceMarketplaceSections';
 import { CategoryNav } from './components/CategoryNav';
 import { HeroBannerCarousel } from './components/HeroBannerCarousel';
 import { CategoryTiles } from './components/CategoryTiles';
@@ -27,7 +28,7 @@ export function HomePage() {
         id="main-content"
         className="mx-auto max-w-7xl space-y-12 px-4 pb-14 pt-6 sm:space-y-14 sm:px-6 lg:px-8"
       >
-        <HeroBannerCarousel />
+        <ReferenceMarketplaceSections />
         <CategoryTiles />
         <DealsOfTheDay />
         <TrustlonBrandSection />
