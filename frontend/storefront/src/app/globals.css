@@ -5,6 +5,11 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --font-sans: 'Inter';
+    --font-hindi: 'Noto Sans Devanagari';
+  }
+
   body {
     @apply bg-cream font-sans text-sm text-navy antialiased;
   }

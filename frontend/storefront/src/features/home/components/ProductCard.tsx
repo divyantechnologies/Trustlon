@@ -6,7 +6,13 @@ import { formatPrice } from '../format';
 import type { Product } from '../types';
 import { Icon } from './Icon';
 import { ProductImage } from './ProductImage';
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({
+  product,
+  showUnrated = false,
+}: {
+  product: Product;
+  showUnrated?: boolean;
+}) {
   const home = useHome();
   const { language } = useI18n();
   const saved = home.isWishlisted(product.id);
@@ -57,6 +63,9 @@ export function ProductCard({ product }: { product: Product }) {
               {product.rating.toFixed(1)}
               <span className="text-slate-500">({product.ratingCount})</span>
             </span>
+          )}
+          {showUnrated && product.ratingCount === 0 && (
+            <span className="text-xs text-slate-500">No ratings yet</span>
           )}
         </div>
         <button

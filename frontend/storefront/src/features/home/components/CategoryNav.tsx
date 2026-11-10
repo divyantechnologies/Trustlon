@@ -87,7 +87,7 @@ export function CategoryNav() {
                   {category.children.map((child) => (
                     <Link
                       key={child.slug}
-                      href={`/browse/${child.slug}`}
+                      href={`/c/${encodeURIComponent(child.slug)}`}
                       onClick={() => {
                         setOpen(null);
                         setMobile(false);
@@ -99,7 +99,7 @@ export function CategoryNav() {
                   ))}
                 </div>
                 <Link
-                  href={`/browse/${category.slug}`}
+                  href={`/c/${encodeURIComponent(category.slug)}`}
                   onClick={() => {
                     setOpen(null);
                     setMobile(false);

@@ -11,6 +11,11 @@ export interface Category extends CategoryRef {
   children: CategoryRef[];
 }
 
+export interface CategoryDetail extends Category {
+  parent: CategoryRef | null;
+  breadcrumb: Array<{ slug: string; name: string }>;
+}
+
 export interface Seller {
   slug: string;
   name: string;
@@ -164,6 +169,9 @@ export interface ProductQuery {
   originals?: boolean;
   deals?: boolean;
   bundle?: boolean;
+  inStock?: boolean;
+  minPricePaise?: number;
+  maxPricePaise?: number;
   sort?: ProductSort;
   page?: number;
   pageSize?: number;

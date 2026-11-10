@@ -13,7 +13,7 @@ export function ProductImage({
   eager?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
-  if (failed)
+  if (failed || !src)
     return (
       <div
         className={`flex items-center justify-center bg-navy-50 text-slate-500 ${className}`}

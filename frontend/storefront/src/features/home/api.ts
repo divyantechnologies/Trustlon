@@ -2,7 +2,7 @@ import { apiFetch } from '@/lib/http';
 import { getGuestToken } from './guest';
 import type {
   Cart,
-  Category,
+  CategoryDetail,
   HomeData,
   LocalSeller,
   Page,
@@ -38,7 +38,7 @@ export const homeApi = {
     apiFetch<Page<Product>>(`/products${toQuery(query)}`, { signal }),
 
   category: (slug: string) =>
-    apiFetch<Category & { breadcrumb: Array<{ slug: string; name: string }> }>(
+    apiFetch<CategoryDetail>(
       `/categories/${encodeURIComponent(slug)}`,
     ),
 

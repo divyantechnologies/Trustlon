@@ -1,5 +1,5 @@
 export const typography = {
-  // Loaded once with next/font in app/layout.tsx.
+  // Loaded once in app/layout.tsx; variables and fallbacks are available offline.
   fontFamily: {
     sans: ['var(--font-sans)', 'var(--font-hindi)', 'system-ui', 'sans-serif'],
   },

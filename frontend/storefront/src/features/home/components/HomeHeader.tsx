@@ -175,7 +175,7 @@ export function HomeHeader() {
                   ].map((item) => (
                     <Link
                       key={`${item.kind}-${item.slug}`}
-                      href={`/browse/${item.slug}`}
+                      href={item.kind === 'Category' ? `/c/${encodeURIComponent(item.slug)}` : `/browse/${item.slug}`}
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => setFocused(false)}
                       className="flex min-h-11 items-center justify-between rounded-lg px-3 py-2 hover:bg-navy-50"

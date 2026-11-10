@@ -4,5 +4,13 @@ const rupees = new Intl.NumberFormat('en-IN', {
   maximumFractionDigits: 0,
 });
 
+const preciseRupees = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+});
+
 /** The API sends money in paise; show it in rupees. */
-export const formatPrice = (paise: number) => rupees.format(paise / 100);
+export const formatPrice = (paise: number, { showPaise = false } = {}) =>
+  (showPaise ? preciseRupees : rupees).format(paise / 100);

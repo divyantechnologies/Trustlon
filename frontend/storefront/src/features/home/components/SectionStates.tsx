@@ -2,11 +2,19 @@
 import { Button } from '@/design-system';
 
 /** Grey placeholder cards while a section loads. */
-export function SectionSkeleton({ cards = 5, title = true }: { cards?: number; title?: boolean }) {
+export function SectionSkeleton({
+  cards = 5,
+  title = true,
+  gridClassName = 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5',
+}: {
+  cards?: number;
+  title?: boolean;
+  gridClassName?: string;
+}) {
   return (
     <div aria-hidden className="animate-pulse">
       {title && <div className="mb-6 h-7 w-56 rounded bg-slate-200" />}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div className={`grid gap-4 ${gridClassName}`}>
         {Array.from({ length: cards }, (_, index) => (
           <div key={index} className="h-72 rounded-lg bg-slate-100" />
         ))}

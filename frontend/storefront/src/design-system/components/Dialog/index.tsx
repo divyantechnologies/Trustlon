@@ -7,11 +7,13 @@ export function Dialog({
   title,
   onClose,
   children,
+  variant = 'modal',
 }: {
   open: boolean;
   title: string;
   onClose: () => void;
   children: React.ReactNode;
+  variant?: 'modal' | 'drawer';
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -40,7 +42,12 @@ export function Dialog({
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      className="m-auto max-h-[85dvh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-lg bg-white p-0 text-navy shadow-sm backdrop:bg-navy/60"
+      className={cn(
+        'overflow-y-auto bg-white p-0 text-navy shadow-sm backdrop:bg-navy/60',
+        variant === 'modal'
+          ? 'm-auto max-h-[85dvh] w-[calc(100%-2rem)] max-w-lg rounded-lg'
+          : 'm-0 ml-auto h-dvh max-h-dvh w-full max-w-sm',
+      )}
     >
       <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
         <h2 id={titleId} className="text-lg font-semibold">

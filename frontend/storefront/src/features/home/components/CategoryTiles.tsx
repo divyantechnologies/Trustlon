@@ -23,7 +23,7 @@ export function CategoryTiles() {
         {categories.map((category) => (
           <Link
             key={category.slug}
-            href={`/browse/${category.slug}`}
+            href={`/c/${encodeURIComponent(category.slug)}`}
             className="group rounded-lg text-center"
           >
             <div className="aspect-square overflow-hidden rounded-lg bg-white">
