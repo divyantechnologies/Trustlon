@@ -3,6 +3,7 @@
  * Run with `npm run db:seed` from the repository root. Never run against production.
  */
 import { BannerPlacement, HomeSectionKey, PrismaClient, ProductStatus, VendorStatus } from '@prisma/client';
+import { computeDiscountPercent } from '../src/modules/catalog/catalog.queries';
 
 const rupees = (value: number) => Math.round(value * 100);
 
@@ -137,6 +138,7 @@ export async function seedHomepage(prisma: PrismaClient): Promise<{ products: nu
       images: [item.image],
       pricePaise: rupees(sellingPrice),
       mrpPaise: rupees(item.mrp),
+      discountPercent: computeDiscountPercent(rupees(sellingPrice), rupees(item.mrp)),
       stock: 50,
       status: ProductStatus.LIVE,
       badge: item.badge ?? null,

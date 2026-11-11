@@ -29,7 +29,14 @@ export class CatalogController {
   listProducts(@Query() query: ProductQueryDto) {
     return this.products.list(query);
   }
-
+  
+    /** Filter options and counts for a listing page; accepts the same scope keys as /products. */
+  @Get('products/facets')
+  @Header('Cache-Control', 'public, max-age=60')
+  facets(@Query() query: ProductQueryDto) {
+    return this.products.facets(query);
+  }
+  
   @Get('products/:slug')
   product(@Param('slug') slug: string) {
     return this.products.detail(slug);
