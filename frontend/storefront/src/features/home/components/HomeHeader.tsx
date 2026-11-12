@@ -242,13 +242,13 @@ export function HomeHeader() {
                 </div>
               )}
               {[
-                ['My account', 'account'],
-                ['My orders', 'orders'],
-                ['Help centre', 'help'],
-              ].map(([label, id]) => (
+                ['My account', '/account'],
+                ['My orders', '/account/orders'],
+                ['Help centre', '/browse/help'],
+              ].map(([label, href]) => (
                 <Link
-                  key={id}
-                  href={`/browse/${id}`}
+                  key={href}
+                  href={href}
                   onClick={() => {
                     if (accountRef.current) accountRef.current.open = false;
                   }}

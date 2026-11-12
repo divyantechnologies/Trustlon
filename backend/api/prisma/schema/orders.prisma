@@ -1,0 +1,145 @@
+enum PaymentMethod {
+  UPI
+  CARD
+  NETBANKING
+  WALLET
+  COD
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  PARTIALLY_REFUNDED
+  REFUNDED
+}
+
+/// Each seller's part of an order moves through these states on its own.
+enum SubOrderStatus {
+  PLACED
+  CONFIRMED
+  PACKED
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+  RETURN_REQUESTED
+  RETURNED
+}
+
+enum RefundStatus {
+  NONE
+  PENDING
+  PROCESSED
+}
+
+/// What the customer placed in one checkout. Split into one sub-order per seller.
+model Order {
+  id                  String        @id @default(uuid()) @db.Uuid
+  orderNumber         String        @unique @map("order_number") @db.VarChar(20)
+  userId              String        @map("user_id") @db.Uuid
+  paymentMethod       PaymentMethod @map("payment_method")
+  paymentStatus       PaymentStatus @default(PENDING) @map("payment_status")
+  paymentReference    String?       @map("payment_reference") @db.VarChar(80)
+  /// Sum of MRP x quantity, in paise.
+  mrpTotalPaise       Int           @map("mrp_total_paise")
+  /// Sum of selling price x quantity, in paise. GST is included.
+  itemsTotalPaise     Int           @map("items_total_paise")
+  couponCode          String?       @map("coupon_code") @db.VarChar(40)
+  couponDiscountPaise Int           @default(0) @map("coupon_discount_paise")
+  deliveryPaise       Int           @default(0) @map("delivery_paise")
+  /// GST included in the items total.
+  taxPaise            Int           @map("tax_paise")
+  totalPaise          Int           @map("total_paise")
+  /// Snapshot of the delivery address at the time of the order.
+  shippingAddress     Json          @map("shipping_address")
+  placedAt            DateTime      @default(now()) @map("placed_at")
+  createdAt           DateTime      @default(now()) @map("created_at")
+  updatedAt           DateTime      @updatedAt @map("updated_at")
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Restrict)
+  subOrders SubOrder[]
+
+  @@index([userId, placedAt])
+  @@map("orders")
+}
+
+/// One seller's part of an order, with its own status, shipment, invoice and payout.
+model SubOrder {
+  id                  String         @id @default(uuid()) @db.Uuid
+  orderId             String         @map("order_id") @db.Uuid
+  vendorId            String         @map("vendor_id") @db.Uuid
+  subOrderNumber      String         @unique @map("sub_order_number") @db.VarChar(24)
+  status              SubOrderStatus @default(PLACED)
+  itemsTotalPaise     Int            @map("items_total_paise")
+  couponDiscountPaise Int            @default(0) @map("coupon_discount_paise")
+  deliveryPaise       Int            @default(0) @map("delivery_paise")
+  taxPaise            Int            @map("tax_paise")
+  totalPaise          Int            @map("total_paise")
+  courierName         String?        @map("courier_name") @db.VarChar(60)
+  awb                 String?        @unique @db.VarChar(40)
+  expectedDeliveryAt  DateTime?      @map("expected_delivery_at")
+  shippedAt           DateTime?      @map("shipped_at")
+  deliveredAt         DateTime?      @map("delivered_at")
+  /// Set at delivery from the category return window.
+  returnWindowEndsAt  DateTime?      @map("return_window_ends_at")
+  cancelledAt         DateTime?      @map("cancelled_at")
+  cancelledBy         String?        @map("cancelled_by") @db.VarChar(20)
+  cancelReason        String?        @map("cancel_reason") @db.VarChar(300)
+  invoiceNumber       String?        @unique @map("invoice_number") @db.VarChar(30)
+  invoicedAt          DateTime?      @map("invoiced_at")
+  refundStatus        RefundStatus   @default(NONE) @map("refund_status")
+  refundPaise         Int            @default(0) @map("refund_paise")
+  refundReference     String?        @map("refund_reference") @db.VarChar(80)
+  refundedAt          DateTime?      @map("refunded_at")
+  createdAt           DateTime       @default(now()) @map("created_at")
+  updatedAt           DateTime       @updatedAt @map("updated_at")
+
+  order  Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  vendor Vendor          @relation(fields: [vendorId], references: [id])
+  items  OrderItem[]
+  events ShipmentEvent[]
+
+  @@index([orderId])
+  @@index([vendorId, status])
+  @@map("sub_orders")
+}
+
+/// A product line, stored as a snapshot so later catalog edits never change past orders.
+model OrderItem {
+  id             String  @id @default(uuid()) @db.Uuid
+  subOrderId     String  @map("sub_order_id") @db.Uuid
+  /// Kept for links back to the catalog; the product may since have been removed.
+  productId      String? @map("product_id") @db.Uuid
+  productSlug    String  @map("product_slug") @db.VarChar(160)
+  productName    String  @map("product_name") @db.VarChar(200)
+  brand          String? @db.VarChar(80)
+  imageUrl       String  @map("image_url")
+  hsnCode        String? @map("hsn_code") @db.VarChar(8)
+  /// GST rate in basis points (1800 = 18%).
+  gstRateBps     Int     @map("gst_rate_bps")
+  quantity       Int
+  unitPricePaise Int     @map("unit_price_paise")
+  unitMrpPaise   Int     @map("unit_mrp_paise")
+
+  subOrder SubOrder @relation(fields: [subOrderId], references: [id], onDelete: Cascade)
+
+  @@index([subOrderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+/// Tracking timeline for a sub-order, newest last.
+model ShipmentEvent {
+  id         String         @id @default(uuid()) @db.Uuid
+  subOrderId String         @map("sub_order_id") @db.Uuid
+  status     SubOrderStatus
+  title      String         @db.VarChar(120)
+  location   String?        @db.VarChar(120)
+  occurredAt DateTime       @map("occurred_at")
+
+  subOrder SubOrder @relation(fields: [subOrderId], references: [id], onDelete: Cascade)
+
+  @@index([subOrderId, occurredAt])
+  @@map("shipment_events")
+}

@@ -4,6 +4,7 @@
  */
 import { BannerPlacement, HomeSectionKey, PrismaClient, ProductStatus, VendorStatus } from '@prisma/client';
 import { computeDiscountPercent } from '../src/modules/catalog/catalog.queries';
+import { seedAccountDemo } from './seed-account';
 
 const rupees = (value: number) => Math.round(value * 100);
 
@@ -181,6 +182,14 @@ if (require.main === module) {
   const prisma = new PrismaClient();
   seedHomepage(prisma)
     .then((result) => console.log(`Seeded home page data: ${result.products} products.`))
+    .then(() => seedAccountDemo(prisma))
+    .then((result) =>
+      console.log(
+        result.accounts
+          ? `Added sample orders and wallet to ${result.accounts} customer account(s).`
+          : 'Sample orders skipped: every customer account already has orders, or none exists yet.',
+      ),
+    )
     .catch((error) => {
       console.error(error);
       process.exitCode = 1;

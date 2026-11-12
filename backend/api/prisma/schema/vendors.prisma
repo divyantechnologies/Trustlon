@@ -10,6 +10,8 @@ model Vendor {
   slug            String       @unique @db.VarChar(80)
   displayName     String       @map("display_name") @db.VarChar(120)
   legalName       String?      @map("legal_name") @db.VarChar(200)
+  /// GST registration number printed on the seller's tax invoices.
+  gstin           String?      @db.VarChar(15)
   initials        String       @db.VarChar(4)
   tagline         String?      @db.VarChar(160)
   description     String?
@@ -32,9 +34,10 @@ model Vendor {
   updatedAt       DateTime     @updatedAt @map("updated_at")
   deletedAt       DateTime?    @map("deleted_at")
 
-  owner    User?     @relation("VendorOwner", fields: [ownerId], references: [id])
-  pickup   Pincode?  @relation(fields: [pickupPincode], references: [pincode])
-  products Product[]
+  owner     User?      @relation("VendorOwner", fields: [ownerId], references: [id])
+  pickup    Pincode?   @relation(fields: [pickupPincode], references: [pincode])
+  products  Product[]
+  subOrders SubOrder[]
 
   @@index([status, isFeatured])
   @@index([pickupPincode])
