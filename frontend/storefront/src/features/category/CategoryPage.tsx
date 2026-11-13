@@ -380,7 +380,7 @@ export function CategoryPage({ slug }: { slug: string }) {
     <>
       <HomeHeader />
       <CategoryNav />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="w-full px-4 py-8 sm:px-6 lg:px-8">
         {error === 'missing' ? (
           <div className="py-12 text-center">
             <h1 className={typography.pageTitle}>Category not found</h1>

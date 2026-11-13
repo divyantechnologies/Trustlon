@@ -43,6 +43,14 @@ export interface Product {
   deal: { endsAt: string } | null;
 }
 
+export interface ProductDetail extends Product {
+  description: string | null;
+  brand: string | null;
+  images: string[];
+  hsnCode: string | null;
+  maxQuantity: number;
+}
+
 export interface Banner {
   id: string;
   eyebrow: string | null;
@@ -113,6 +121,7 @@ export interface Page<T> {
   pageSize: number;
   total: number;
   totalPages: number;
+  search?: { originalQuery: string; query: string; corrected: boolean };
 }
 
 export interface CartLine {
@@ -144,6 +153,8 @@ export interface Cart {
 
 export interface Suggestions {
   query: string;
+  correctedQuery?: string;
+  brands: Array<{ name: string }>;
   products: Array<{ id: string; slug: string; name: string; image: string }>;
   categories: Array<{ slug: string; name: string }>;
   stores: Array<{ slug: string; name: string }>;
@@ -160,10 +171,12 @@ export interface Serviceability {
   estimatedDeliveryDays: number | null;
 }
 
-export type ProductSort = 'relevance' | 'popularity' | 'price_asc' | 'price_desc' | 'newest' | 'rating';
+export type ProductSort =
+  'relevance' | 'popularity' | 'price_asc' | 'price_desc' | 'newest' | 'rating';
 
 export interface ProductQuery {
   q?: string;
+  autocorrect?: boolean;
   category?: string;
   store?: string;
   originals?: boolean;

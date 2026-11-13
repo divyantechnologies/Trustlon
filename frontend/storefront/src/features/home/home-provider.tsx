@@ -25,7 +25,7 @@ interface HomeState {
   cart: Cart | null;
   cartCount: number;
   quantityInCart: (productId: string) => number;
-  addToCart: (product: Product) => Promise<void>;
+  addToCart: (product: Product, quantity?: number) => Promise<void>;
   setQuantity: (productId: string, quantity: number) => Promise<void>;
 
   wishlist: Product[];
@@ -133,9 +133,9 @@ export function HomeProvider({ children }: { children: React.ReactNode }) {
     [cart],
   );
 
-  const addToCart = useCallback(async (product: Product) => {
+  const addToCart = useCallback(async (product: Product, quantity = 1) => {
     try {
-      setCart(await homeApi.addToCart(product.id));
+      setCart(await homeApi.addToCart(product.id, quantity));
       announce(`${product.name} added to your cart.`);
     } catch (error) {
       announce(errorMessage(error));

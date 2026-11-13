@@ -18,3 +18,8 @@
     @apply rounded-lg outline-none ring-2 ring-teal ring-offset-2;
   }
 }
+@media (min-width: 1024px) {
+  .top-100-products {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}

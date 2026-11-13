@@ -3,7 +3,8 @@ import { Prisma } from '@prisma/client';
 import { Page, toPage } from '../../common/http/pagination';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CategoriesService } from './categories.service';
-import { liveProductWhere, productInclude, ProductRow, searchTerms } from './catalog.queries';
+import { liveProductWhere, productInclude, ProductRow } from './catalog.queries';
+import { ProductSearchService } from './product-search.service';
 import { ProductQueryDto, ProductSort } from './dto/product-query.dto';
 import { PricingService } from './pricing.service';
 import {
@@ -28,9 +29,21 @@ export class ProductsService {
     private readonly prisma: PrismaService,
     private readonly categories: CategoriesService,
     private readonly pricing: PricingService,
+    private readonly search: ProductSearchService,
   ) {}
 
-  async list(query: ProductQueryDto): Promise<Page<ProductSummary>> {
+  async list(query: ProductQueryDto): Promise<
+    Page<ProductSummary> & {
+      search?: { originalQuery: string; query: string; corrected: boolean };
+    }
+  > {
+    if (query.q?.trim()) {
+      const result = await this.search.find(query);
+      return {
+        ...toPage(await this.byIds(result.ids), result.total, query.page, query.pageSize),
+        search: result.search,
+      };
+    }
     const where = await this.buildWhere(query);
     if (!where) return toPage([], 0, query.page, query.pageSize);
 
@@ -101,7 +114,6 @@ export class ProductsService {
     if (query.inStock) and.push({ stock: { gt: 0 } });
     if (query.minPricePaise !== undefined) and.push({ pricePaise: { gte: query.minPricePaise } });
     if (query.maxPricePaise !== undefined) and.push({ pricePaise: { lte: query.maxPricePaise } });
-    for (const term of searchTerms(query.q)) and.push({ searchText: { contains: term } });
 
     return { AND: and };
   }

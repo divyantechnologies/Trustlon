@@ -24,7 +24,7 @@ const assurances: { icon: IconName; title: string; body: string }[] = [
 export function TrustStrip() {
   return (
     <section aria-label="The Trustlon promise" className="border-y border-slate-200 bg-white">
-      <div className="mx-auto grid max-w-7xl gap-8 px-6 py-10 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
+      <div className="grid w-full gap-8 px-6 py-10 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
         {assurances.map((item) => (
           <div key={item.title} className="flex gap-4">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-600">

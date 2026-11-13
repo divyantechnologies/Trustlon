@@ -223,10 +223,16 @@ function VerifiedStores() {
 function Recommended() {
   const [items, setItems] = useState<Product[] | null>(null);
   useEffect(() => {
+    const controller = new AbortController();
     homeApi
-      .recommendations(20)
-      .then((data) => setItems(data.items))
-      .catch(() => setItems([]));
+      .recommendations(20, controller.signal)
+      .then((data) => {
+        if (!controller.signal.aborted) setItems(Array.isArray(data?.items) ? data.items : []);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setItems([]);
+      });
+    return () => controller.abort();
   }, []);
   if (items === null) return <SectionSkeleton cards={10} title={false} />;
   return <ProductGrid products={items} />;
@@ -242,7 +248,7 @@ export function BrowsePage() {
     <>
       <HomeHeader />
       <CategoryNav />
-      <main className="mx-auto min-h-[60vh] max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <main className="min-h-[60vh] w-full px-4 py-10 sm:px-6 lg:px-8">
         <Link href="/" className="mb-6 inline-flex min-h-11 items-center text-teal-600">
           ← Back to home
         </Link>

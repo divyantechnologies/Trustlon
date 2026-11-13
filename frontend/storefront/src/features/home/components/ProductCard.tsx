@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { Button, cn, focusRing } from '@/design-system';
 import { useI18n } from '@/lib/i18n/language-provider';
 import { useHome } from '../home-provider';
@@ -20,9 +21,9 @@ export function ProductCard({
   return (
     <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white transition hover:border-teal/40 hover:shadow-sm">
       <div className="relative bg-navy-50">
-        <button
-          aria-label={`View ${product.name}`}
-          onClick={() => home.viewProduct(product)}
+        <Link
+          href={`/p/${encodeURIComponent(product.slug)}`}
+          aria-label={`View product details for ${product.name}`}
           className={cn('block aspect-[1.15] w-full overflow-hidden', focusRing)}
         >
           <ProductImage
@@ -30,6 +31,15 @@ export function ProductCard({
             alt={product.name}
             className="h-full w-full object-cover transition duration-300 motion-safe:group-hover:scale-105"
           />
+        </Link>
+        <button
+          type="button"
+          aria-label={`Quick view ${product.name}`}
+          onClick={() => home.viewProduct(product)}
+          className={cn('absolute bottom-2 left-2 flex min-h-10 items-center gap-1 rounded-full bg-white/95 px-3 text-xs font-medium text-navy shadow-sm hover:bg-white', focusRing)}
+        >
+          <Icon name="eye" className="h-4 w-4" />
+          Quick view
         </button>
         {product.discountPercent > 0 && (
           <span className="absolute left-3 top-3 rounded bg-white px-2 py-1 text-[10px] font-semibold text-teal-600">
@@ -68,15 +78,15 @@ export function ProductCard({
             <span className="text-xs text-slate-500">No ratings yet</span>
           )}
         </div>
-        <button
-          onClick={() => home.viewProduct(product)}
+        <Link
+          href={`/p/${encodeURIComponent(product.slug)}`}
           className={cn(
             'mb-3 min-h-10 rounded text-left text-sm font-medium leading-5 hover:text-teal-600',
             focusRing,
           )}
         >
           {product.name}
-        </button>
+        </Link>
         <div className="mb-3 flex flex-wrap items-baseline gap-2">
           <span className="text-lg font-semibold">{formatPrice(product.pricePaise)}</span>
           {product.mrpPaise > product.pricePaise && (
@@ -98,7 +108,7 @@ export function ProductCard({
             onClick={() => void home.addToCart(product)}
           >
             {product.inStock && <Icon name="plus" className="hidden h-4 w-4 sm:block" />}
-            <span className="text-xs sm:text-sm">
+            <span className="whitespace-nowrap text-xs sm:text-sm">
               {!product.inStock
                 ? language === 'hi'
                   ? 'स्टॉक में नहीं'

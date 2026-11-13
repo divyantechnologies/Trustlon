@@ -137,20 +137,22 @@ function TodaysView({ items }: { items: Product[] }) {
                 <Icon name="heart" className={cn('h-4 w-4', saved && 'fill-current')} />
               </button>
               {product.image ? (
+                <Link href={`/p/${encodeURIComponent(product.slug)}`} aria-label={`View product details for ${product.name}`} className="block rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-600">
                 <ProductImage
                   src={product.image}
                   alt={product.name}
                   className="h-24 w-full rounded-lg object-cover"
                 />
+                </Link>
               ) : (
                 <PlaceholderVisual label={product.name} className="h-24 rounded-lg text-center text-xs" />
               )}
-              <button
-                onClick={() => home.viewProduct(product)}
-                className="mt-2 line-clamp-2 min-h-10 text-left text-xs font-medium"
+              <Link
+                href={`/p/${encodeURIComponent(product.slug)}`}
+                className="mt-2 line-clamp-2 min-h-10 text-left text-xs font-medium hover:text-teal-600"
               >
                 {product.name}
-              </button>
+              </Link>
               <p className="mt-1 font-semibold">{formatPrice(product.pricePaise)}</p>
             </article>
           );
@@ -222,7 +224,7 @@ function Top100({ categories, ad }: { categories: Category[]; ad?: Banner }) {
     <section className="min-w-0 rounded-lg border border-slate-200 bg-white p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-xl font-semibold">Top 100</h2>
-        <div className="flex gap-1 overflow-x-auto">
+        <div aria-label="Top 100 category filters" className="flex min-w-0 max-w-full gap-1 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:overflow-visible">
           {tabs.map((category) => (
             <button
               key={category.slug}
@@ -248,14 +250,14 @@ function Top100({ categories, ad }: { categories: Category[]; ad?: Banner }) {
       ) : rotated.length === 0 ? (
         <p className="py-10 text-center text-sm text-slate-500">No products in this category yet.</p>
       ) : (
-        <div className="mt-4 grid grid-flow-col auto-cols-[78%] gap-3 overflow-x-auto sm:auto-cols-[45%] lg:auto-cols-[48%]">
+        <div aria-label="Top 100 products" className="top-100-products mt-4 grid min-w-0 grid-flow-col auto-cols-[78%] gap-3 overflow-x-auto overscroll-x-contain pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:auto-cols-[45%] md:auto-cols-[32%] lg:grid-flow-row lg:auto-cols-auto lg:overflow-visible lg:pb-0">
           {rotated.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       )}
       {list.length > 1 && (
-        <div className="mt-3 flex justify-end gap-2">
+        <div className="mt-3 flex justify-end gap-2 lg:hidden">
           <button
             aria-label="Previous Top 100 products"
             onClick={() => setOffset((offset + list.length - 1) % list.length)}
@@ -332,7 +334,7 @@ export function ReferenceMarketplaceSections() {
   return (
     <div className="space-y-6">
       {promos.strip && promos.strip.highlights.length > 0 && <SaleStrip banner={promos.strip} />}
-      <div className="grid gap-4 lg:grid-cols-[19%_60%_21%]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,3fr)_minmax(0,1.05fr)]">
         <CategoryRail categories={categories} />
         <HeroBannerCarousel />
         {trending.length > 0 && <TodaysView items={trending.slice(0, 4)} />}
@@ -347,12 +349,12 @@ export function ReferenceMarketplaceSections() {
           {wideTop.subtitle && <p className="text-xl font-semibold uppercase">{wideTop.subtitle}</p>}
         </Ad>
       )}
-      <div className="grid gap-4 lg:grid-cols-[40%_60%]">
+      <div className="space-y-4">
         {deals.items.length > 0 && <DealPanel items={deals.items.slice(0, 3)} endsAt={deals.endsAt} />}
         <Top100 categories={categories} ad={wideTop100} />
       </div>
       {combos.length > 0 && (
-        <div className="grid gap-5 lg:grid-cols-[75%_25%]">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(0,1fr)]">
           <ComboSection items={combos} />
           <aside className="space-y-4">
             {sideFirst && (

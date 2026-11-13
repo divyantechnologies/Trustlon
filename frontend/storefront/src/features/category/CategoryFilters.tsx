@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { Button, TextField, inputClass } from '@/design-system';
-import type { Store } from '../home/types';
+import { Button, Checkbox, TextField, inputClass } from '@/design-system';
+import type { CategoryRef, Store } from '../home/types';
 import { priceToPaise, type CategoryQuery } from './query';
 
 /** The same fields serve the debounced sidebar and the explicit-apply mobile drawer. */
@@ -10,11 +10,15 @@ export function CategoryFilters({
   stores,
   onApply,
   mobile = false,
+  categories,
+  availability = false,
 }: {
   query: CategoryQuery;
   stores: Store[];
   onApply: (query: CategoryQuery) => void;
   mobile?: boolean;
+  categories?: CategoryRef[];
+  availability?: boolean;
 }) {
   const [minimum, setMinimum] = useState(
     query.minPricePaise === undefined ? '' : String(query.minPricePaise / 100),
@@ -23,6 +27,8 @@ export function CategoryFilters({
     query.maxPricePaise === undefined ? '' : String(query.maxPricePaise / 100),
   );
   const [store, setStore] = useState(query.store ?? '');
+  const [category, setCategory] = useState(query.category ?? '');
+  const [inStock, setInStock] = useState(query.inStock ?? false);
   const applyRef = useRef(onApply);
   applyRef.current = onApply;
   const minPricePaise = priceToPaise(minimum);
@@ -35,14 +41,25 @@ export function CategoryFilters({
   const changed =
     minPricePaise !== query.minPricePaise ||
     maxPricePaise !== query.maxPricePaise ||
-    (store || undefined) !== query.store;
+    (store || undefined) !== query.store ||
+    (category || undefined) !== query.category ||
+    (inStock || undefined) !== query.inStock;
 
   // Follow URL navigation without remounting fields (and losing typing focus).
   useEffect(() => {
     setMinimum(query.minPricePaise === undefined ? '' : String(query.minPricePaise / 100));
     setMaximum(query.maxPricePaise === undefined ? '' : String(query.maxPricePaise / 100));
     setStore(query.store ?? '');
-  }, [query.minPricePaise, query.maxPricePaise, query.store, query.sort]);
+    setCategory(query.category ?? '');
+    setInStock(query.inStock ?? false);
+  }, [
+    query.minPricePaise,
+    query.maxPricePaise,
+    query.store,
+    query.sort,
+    query.category,
+    query.inStock,
+  ]);
 
   useEffect(() => {
     if (mobile || invalid || !changed) return;
@@ -52,11 +69,13 @@ export function CategoryFilters({
         minPricePaise,
         maxPricePaise,
         store: store || undefined,
+        category: category || undefined,
+        inStock: inStock || undefined,
         page: 1,
       });
     }, 400);
     return () => window.clearTimeout(timer);
-  }, [mobile, invalid, changed, minPricePaise, maxPricePaise, store, query]);
+  }, [mobile, invalid, changed, minPricePaise, maxPricePaise, store, category, inStock, query]);
 
   return (
     <form
@@ -64,9 +83,37 @@ export function CategoryFilters({
       onSubmit={(event) => {
         event.preventDefault();
         if (!invalid)
-          onApply({ ...query, minPricePaise, maxPricePaise, store: store || undefined, page: 1 });
+          onApply({
+            ...query,
+            minPricePaise,
+            maxPricePaise,
+            store: store || undefined,
+            category: category || undefined,
+            inStock: inStock || undefined,
+            page: 1,
+          });
       }}
     >
+      {categories && (
+        <label className="block space-y-2">
+          <span className="font-semibold">Category</span>
+          <select
+            className={inputClass(false)}
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+          >
+            <option value="">All categories</option>
+            {category && !categories.some((item) => item.slug === category) && (
+              <option value={category}>{category}</option>
+            )}
+            {categories.map((item) => (
+              <option key={item.slug} value={item.slug}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       <fieldset className="space-y-4">
         <legend className="mb-3 font-semibold">Price range</legend>
         <TextField
@@ -112,6 +159,13 @@ export function CategoryFilters({
         </select>
         <span className="block text-xs text-slate-500">Choose one of our verified stores.</span>
       </label>
+      {availability && (
+        <Checkbox
+          label="In stock only"
+          checked={inStock}
+          onChange={(event) => setInStock(event.target.checked)}
+        />
+      )}
       {mobile && (
         <Button type="submit" disabled={invalid}>
           Apply filters
@@ -124,6 +178,8 @@ export function CategoryFilters({
           setMinimum('');
           setMaximum('');
           setStore('');
+          setCategory('');
+          setInStock(false);
           if (!mobile) onApply({ sort: query.sort, page: 1 });
         }}
       >

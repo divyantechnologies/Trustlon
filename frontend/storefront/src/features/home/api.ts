@@ -7,6 +7,7 @@ import type {
   LocalSeller,
   Page,
   Product,
+  ProductDetail,
   ProductQuery,
   Serviceability,
   Store,
@@ -23,12 +24,50 @@ function shopper() {
 function toQuery(params: object): string {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== null && value !== '' && value !== false) {
+    if (value !== undefined && value !== null && value !== '') {
       search.set(key, String(value));
     }
   }
   const text = search.toString();
   return text ? `?${text}` : '';
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isStringOrNull(value: unknown): value is string | null {
+  return value === null || typeof value === 'string';
+}
+
+function isProduct(value: unknown): value is Product {
+  if (!isRecord(value) || !isRecord(value.category) || !isRecord(value.seller)) return false;
+  const { category, seller } = value;
+  const numericFields = ['pricePaise', 'mrpPaise', 'discountPercent', 'rating', 'ratingCount'];
+  return (
+    typeof value.id === 'string' && typeof value.slug === 'string' &&
+    typeof value.name === 'string' && typeof value.image === 'string' &&
+    typeof value.currency === 'string' && numericFields.every((key) => typeof value[key] === 'number' && Number.isFinite(value[key])) &&
+    typeof value.inStock === 'boolean' && typeof value.codAvailable === 'boolean' &&
+    isStringOrNull(value.badge) &&
+    typeof category.slug === 'string' && typeof category.name === 'string' && isStringOrNull(category.nameHi) &&
+    typeof seller.slug === 'string' && typeof seller.name === 'string' &&
+    typeof seller.isVerified === 'boolean' && typeof seller.isPlatformOwned === 'boolean' &&
+    typeof seller.trustScore === 'number' && Number.isFinite(seller.trustScore) &&
+    (value.deal === null || (isRecord(value.deal) && typeof value.deal.endsAt === 'string'))
+  );
+}
+
+/** Parse the untrusted JSON envelope without allowing malformed recommendations into UI state. */
+export function parseRecommendations(response: unknown): Product[] {
+  if (!isRecord(response) || !Array.isArray(response.items)) {
+    throw new Error('Recommendations API returned an invalid response');
+  }
+  const items = response.items.filter(isProduct);
+  if (response.items.length > 0 && items.length === 0) {
+    throw new Error('Recommendations API returned no valid products');
+  }
+  return items;
 }
 
 export const homeApi = {
@@ -37,10 +76,13 @@ export const homeApi = {
   products: (query: ProductQuery, signal?: AbortSignal) =>
     apiFetch<Page<Product>>(`/products${toQuery(query)}`, { signal }),
 
-  category: (slug: string) =>
-    apiFetch<CategoryDetail>(
-      `/categories/${encodeURIComponent(slug)}`,
-    ),
+  product: (slug: string, signal?: AbortSignal) =>
+    apiFetch<{ product: ProductDetail; similar: Product[] }>(`/products/${encodeURIComponent(slug)}`, { signal }),
+
+  search: (query: ProductQuery, signal?: AbortSignal) =>
+    apiFetch<Page<Product>>(`/search${toQuery(query)}`, { signal }),
+
+  category: (slug: string) => apiFetch<CategoryDetail>(`/categories/${encodeURIComponent(slug)}`),
 
   store: (slug: string) => apiFetch<StoreDetail>(`/stores/${encodeURIComponent(slug)}`),
 
@@ -58,8 +100,13 @@ export const homeApi = {
   serviceability: (pincode: string) =>
     apiFetch<Serviceability>(`/pincode/${encodeURIComponent(pincode)}/serviceability`),
 
-  recommendations: (limit = 10, signal?: AbortSignal) =>
-    apiFetch<{ items: Product[] }>(`/recommendations${toQuery({ limit })}`, { ...shopper(), signal }),
+  recommendations: async (limit = 10, signal?: AbortSignal): Promise<{ items: Product[] }> => {
+    const response = await apiFetch<unknown>(`/recommendations${toQuery({ limit })}`, {
+      ...shopper(),
+      signal,
+    });
+    return { items: parseRecommendations(response) };
+  },
 
   recentlyViewed: () => apiFetch<{ items: Product[] }>('/me/recently-viewed', shopper()),
 
@@ -72,7 +119,11 @@ export const homeApi = {
     apiFetch<Cart>('/cart/items', { ...shopper(), method: 'POST', body: { productId, quantity } }),
 
   setCartQuantity: (productId: string, quantity: number) =>
-    apiFetch<Cart>(`/cart/items/${productId}`, { ...shopper(), method: 'PATCH', body: { quantity } }),
+    apiFetch<Cart>(`/cart/items/${productId}`, {
+      ...shopper(),
+      method: 'PATCH',
+      body: { quantity },
+    }),
 
   removeFromCart: (productId: string) =>
     apiFetch<Cart>(`/cart/items/${productId}`, { ...shopper(), method: 'DELETE' }),
@@ -83,5 +134,8 @@ export const homeApi = {
     apiFetch<{ productIds: string[] }>(`/me/wishlist/${productId}`, { auth: true, method: 'PUT' }),
 
   removeFromWishlist: (productId: string) =>
-    apiFetch<{ productIds: string[] }>(`/me/wishlist/${productId}`, { auth: true, method: 'DELETE' }),
+    apiFetch<{ productIds: string[] }>(`/me/wishlist/${productId}`, {
+      auth: true,
+      method: 'DELETE',
+    }),
 };

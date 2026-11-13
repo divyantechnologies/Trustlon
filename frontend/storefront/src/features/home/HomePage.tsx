@@ -45,7 +45,7 @@ export function HomePage() {
       <main
         id="main-content"
         aria-busy={homeState === 'loading'}
-        className="mx-auto max-w-7xl space-y-12 px-4 pb-14 pt-6 sm:space-y-14 sm:px-6 lg:px-8"
+        className="w-full space-y-12 px-4 pb-14 pt-6 sm:space-y-14 sm:px-6 lg:px-8"
       >
         {homeState === 'loading' && (
           <>

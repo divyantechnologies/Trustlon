@@ -15,6 +15,9 @@ export interface CategoryQuery {
   minPricePaise?: number;
   maxPricePaise?: number;
   store?: string;
+  /** Optional search facets; category routes retain their existing URL contract. */
+  category?: string;
+  inStock?: boolean;
 }
 
 function integer(value: string | null, minimum: number): number | undefined {

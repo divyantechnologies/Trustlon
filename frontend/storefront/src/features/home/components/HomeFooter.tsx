@@ -33,7 +33,7 @@ const groups = [
 export function HomeFooter() {
   return (
     <footer className="bg-navy text-white">
-      <div className="mx-auto max-w-7xl px-6 pb-6 pt-12 lg:px-8">
+      <div className="w-full px-6 pb-6 pt-12 lg:px-8">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr]">
           <div>
             <BrandLogo inverted />

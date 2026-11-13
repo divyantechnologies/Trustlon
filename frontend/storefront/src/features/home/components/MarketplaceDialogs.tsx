@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Alert, Button, Dialog, TextField } from '@/design-system';
 import { homeApi } from '../api';
 import { formatPrice } from '../format';
@@ -35,11 +36,14 @@ function SavedItem({ product }: { product: Product }) {
   const home = useHome();
   return (
     <div className="flex items-start gap-4 border-b border-slate-100 pb-5">
-      <ProductImage src={product.image} alt={product.name} className="h-20 w-20 shrink-0 rounded-lg object-cover" />
+      <Link href={`/p/${encodeURIComponent(product.slug)}`} aria-label={`View product details for ${product.name}`} className="shrink-0 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-600">
+        <ProductImage src={product.image} alt={product.name} className="h-20 w-20 rounded-lg object-cover" />
+      </Link>
       <div className="min-w-0 flex-1">
-        <button className="text-left font-medium hover:underline" onClick={() => home.viewProduct(product)}>
+        <Link href={`/p/${encodeURIComponent(product.slug)}`} className="text-left font-medium hover:underline">
           {product.name}
-        </button>
+        </Link>
+        <Button variant="link" className="mt-1 !w-auto" onClick={() => home.viewProduct(product)}>Quick view</Button>
         <p className="my-2 font-semibold">{formatPrice(product.pricePaise)}</p>
         <div className="flex flex-wrap gap-4">
           <Button variant="link" disabled={!product.inStock} onClick={() => void home.addToCart(product)}>
@@ -197,7 +201,12 @@ export function MarketplaceDialogs() {
       <Dialog open={Boolean(product)} title={product?.name ?? 'Product'} onClose={home.closeProduct}>
         {product && (
           <div className="space-y-5">
-            <ProductImage src={product.image} alt={product.name} className="h-64 w-full rounded-lg object-cover" />
+            <Link href={`/p/${encodeURIComponent(product.slug)}`} onClick={home.closeProduct} aria-label={`View full details for ${product.name}`} className="block rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-600">
+              <ProductImage src={product.image} alt={product.name} className="h-64 w-full rounded-lg object-cover" />
+            </Link>
+            <Link href={`/p/${encodeURIComponent(product.slug)}`} onClick={home.closeProduct} className="block rounded text-lg font-semibold hover:text-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-600">
+              {product.name}
+            </Link>
             <p className="text-slate-500">
               By {product.seller.name}
               {product.seller.isVerified ? ' · Trustlon Verified' : ''}
@@ -223,6 +232,10 @@ export function MarketplaceDialogs() {
             <Button variant="link" onClick={() => void home.toggleWishlist(product)}>
               {home.isWishlisted(product.id) ? 'Remove from wishlist' : 'Save to wishlist'}
             </Button>
+            <Link href={`/p/${encodeURIComponent(product.slug)}`} onClick={home.closeProduct}
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-slate-300 px-4 text-sm font-semibold text-navy hover:bg-navy-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-600">
+              View Full Details
+            </Link>
           </div>
         )}
       </Dialog>

@@ -29,7 +29,7 @@ export function CategoryNav() {
         if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(null);
       }}
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <button
           className={cn('flex h-12 items-center gap-3 rounded-lg font-medium lg:hidden', focusRing)}
           onClick={() => setMobile(!mobile)}

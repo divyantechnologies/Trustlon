@@ -13,7 +13,11 @@ export const PRODUCT_SORTS = [
 export type ProductSort = (typeof PRODUCT_SORTS)[number];
 
 const toBool = ({ value }: { value: unknown }) =>
-  value === true || value === 'true' || value === '1' ? true : value === undefined ? undefined : false;
+  value === true || value === 'true' || value === '1'
+    ? true
+    : value === undefined
+      ? undefined
+      : false;
 
 export class ProductQueryDto extends PageQueryDto {
   /** Free-text search over name, brand, seller and category. */
@@ -21,6 +25,12 @@ export class ProductQueryDto extends PageQueryDto {
   @IsString()
   @MaxLength(100)
   q?: string;
+
+  /** Set false to search the original spelling without automatic correction. */
+  @IsOptional()
+  @Transform(toBool)
+  @IsBoolean()
+  autocorrect?: boolean;
 
   /** Category slug; includes its sub-categories. */
   @IsOptional()
