@@ -87,3 +87,38 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
   }
   return data as T;
 }
+
+async function errorFrom(response: Response): Promise<ApiError> {
+  const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
+  const raw = data.message;
+  const message = Array.isArray(raw) ? String(raw[0]) : typeof raw === 'string' ? raw : '';
+  return new ApiError(response.status, message, data);
+}
+
+/** Downloads a signed-in file (for example an invoice PDF) and saves it in the browser. */
+export async function apiDownload(path: string, fallbackFileName: string): Promise<void> {
+  const send = (token: string | null) =>
+    fetch(`${API_BASE}${path}`, {
+      credentials: 'include',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+
+  let response = await send(accessToken);
+  if (response.status === 401) {
+    const renewed = await refreshOnce();
+    if (renewed) response = await send(renewed);
+  }
+  if (!response.ok) throw await errorFrom(response);
+
+  const blob = await response.blob();
+  const disposition = response.headers.get('Content-Disposition') ?? '';
+  const fileName = /filename="([^"]+)"/.exec(disposition)?.[1] ?? fallbackFileName;
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}

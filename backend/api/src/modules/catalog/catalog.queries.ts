@@ -47,3 +47,10 @@ export function searchTerms(query: string | undefined): string[] {
     .filter((term) => term.length > 0)
     .slice(0, 8);
 }
+
+
+/** Percent off MRP at the base price. Store it in `products.discount_percent` on every save. */
+export function computeDiscountPercent(pricePaise: number, mrpPaise: number): number {
+  if (mrpPaise <= 0 || pricePaise >= mrpPaise) return 0;
+  return Math.floor((1 - pricePaise / mrpPaise) * 100);
+}

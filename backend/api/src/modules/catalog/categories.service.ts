@@ -53,6 +53,7 @@ export class CategoriesService {
       slug: category.slug,
       name: category.name,
       nameHi: category.nameHi,
+      description: category.description,
       image: category.imageUrl,
       parent: category.parent,
       children: category.children,

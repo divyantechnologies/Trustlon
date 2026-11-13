@@ -17,8 +17,6 @@ import type { Product, ProductQuery, ProductSort, Store } from './types';
 
 /** Pages that are not built yet. They show a short note instead of products. */
 const informational: Record<string, string> = {
-  account: 'Your account',
-  orders: 'Your orders',
   help: 'Help centre',
   about: 'About Trustlon',
   story: 'Our story',

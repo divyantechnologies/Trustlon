@@ -11,6 +11,7 @@ model Category {
   slug             String   @unique @db.VarChar(80)
   name             String   @db.VarChar(80)
   nameHi           String?  @map("name_hi") @db.VarChar(80)
+  description      String?  @db.VarChar(500)
   imageUrl         String?  @map("image_url")
   parentId         String?  @map("parent_id") @db.Uuid
   sortOrder        Int      @default(0) @map("sort_order")
@@ -44,6 +45,7 @@ model Product {
   pricePaise  Int           @map("price_paise")
   /// Maximum retail price in paise.
   mrpPaise    Int           @map("mrp_paise")
+  discountPercent Int       @default(0) @map("discount_percent")
   stock       Int           @default(0)
   status      ProductStatus @default(DRAFT)
   badge       String?       @db.VarChar(40)
@@ -71,5 +73,6 @@ model Product {
   @@index([vendorId, status])
   @@index([status, salesCount])
   @@index([isBundle, status])
+  @@index([categoryId, brand])
   @@map("products")
 }
