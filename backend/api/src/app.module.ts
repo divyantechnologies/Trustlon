@@ -4,14 +4,18 @@ import { APP_GUARD } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthCommonModule } from './common/auth/auth-common.module';
+import { FileStorageModule } from './common/storage/file-storage';
 import { Env, validateEnv } from './config/env';
 import { AccountModule } from './modules/account/account.module';
+import { AddressesModule } from './modules/addresses/addresses.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { HomeModule } from './modules/home/home.module';
 import { LocationModule } from './modules/location/location.module';
 import { MarketingModule } from './modules/marketing/marketing.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { PriceAlertsModule } from './modules/price-alerts/price-alerts.module';
+import { ReturnsModule } from './modules/returns/returns.module';
 import { ShoppingModule } from './modules/shopping/shopping.module';
 import { StoresModule } from './modules/stores/stores.module';
 import { WalletModule } from './modules/wallet/wallet.module';
@@ -31,6 +35,7 @@ import { PrismaModule } from './prisma/prisma.module';
     EventEmitterModule.forRoot(),
     PrismaModule,
     AuthCommonModule,
+    FileStorageModule,
 
     // Feature modules: add one line per module.
     AuthModule,
@@ -43,6 +48,9 @@ import { PrismaModule } from './prisma/prisma.module';
     WalletModule,
     OrdersModule,
     AccountModule,
+    AddressesModule,
+    PriceAlertsModule,
+    ReturnsModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

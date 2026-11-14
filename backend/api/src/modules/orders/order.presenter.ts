@@ -1,4 +1,11 @@
-import { PaymentMethod, PaymentStatus, Prisma, RefundStatus, SubOrderStatus } from '@prisma/client';
+import {
+  PaymentMethod,
+  PaymentStatus,
+  Prisma,
+  RefundStatus,
+  ReturnStatus,
+  SubOrderStatus,
+} from '@prisma/client';
 import { isCancellable, OrderStage, orderStage, returnEligibleUntil } from './order-rules';
 
 export const orderSummaryInclude = {
@@ -23,6 +30,10 @@ export const orderDetailInclude = {
       vendor: { select: { slug: true, displayName: true, isVerified: true } },
       items: { orderBy: { productName: 'asc' } },
       events: { orderBy: { occurredAt: 'asc' } },
+      returns: {
+        orderBy: { requestedAt: 'desc' },
+        select: { id: true, returnNumber: true, status: true },
+      },
     },
   },
 } satisfies Prisma.OrderInclude;
@@ -108,6 +119,8 @@ export interface SubOrderView {
     refundedAt: Date | null;
   } | null;
   invoice: { number: string; issuedAt: Date | null } | null;
+  /** Returns raised for this shipment, newest first. */
+  returns: Array<{ id: string; returnNumber: string; status: ReturnStatus }>;
   actions: {
     canCancel: boolean;
     /** Last day to request a return; null when the item cannot be returned now. */
@@ -249,6 +262,7 @@ export function toOrderDetail(order: OrderDetailRow, now = new Date()): OrderDet
             refundedAt: sub.refundedAt,
           },
     invoice: sub.invoiceNumber ? { number: sub.invoiceNumber, issuedAt: sub.invoicedAt } : null,
+    returns: sub.returns.map((r) => ({ id: r.id, returnNumber: r.returnNumber, status: r.status })),
     actions: {
       canCancel: isCancellable(sub.status),
       returnEligibleUntil: returnEligibleUntil(sub.status, sub.returnWindowEndsAt, now),

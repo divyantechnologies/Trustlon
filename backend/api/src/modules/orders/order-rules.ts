@@ -47,7 +47,9 @@ export function returnEligibleUntil(
   returnWindowEndsAt: Date | null,
   now = new Date(),
 ): Date | null {
-  if (status !== SubOrderStatus.DELIVERED || !returnWindowEndsAt) return null;
+  const returnable =
+    status === SubOrderStatus.DELIVERED || status === SubOrderStatus.RETURN_REQUESTED;
+  if (!returnable || !returnWindowEndsAt) return null;
   return returnWindowEndsAt.getTime() >= now.getTime() ? returnWindowEndsAt : null;
 }
 

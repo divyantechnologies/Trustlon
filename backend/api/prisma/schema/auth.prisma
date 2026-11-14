@@ -58,14 +58,17 @@ model User {
   referrals  User[]    @relation("UserReferrals")
   sessions   Session[]
 
-  // Relations owned by other modules (vendors, shopping, orders, wallet).
-  vendors         Vendor[]         @relation("VendorOwner")
+  // Relations owned by other modules (vendors, shopping, orders, wallet, account, returns).
+  vendors         Vendor[]          @relation("VendorOwner")
   cart            Cart?
   wishlistItems   WishlistItem[]
   recentlyViewed  RecentlyViewed[]
   orders          Order[]
   wallet          Wallet?
   primeMembership PrimeMembership?
+  addresses       Address[]
+  priceAlerts     PriceAlert[]
+  returnRequests  ReturnRequest[]
 
   @@map("users")
 }

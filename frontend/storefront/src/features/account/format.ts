@@ -1,4 +1,4 @@
-import type { PaymentMethod, SubOrderStatus } from './types';
+import type { AddressLabel, PaymentMethod, ReturnStatus, SubOrderStatus } from './types';
 
 const rupees = new Intl.NumberFormat('en-IN', {
   style: 'currency',
@@ -83,4 +83,67 @@ export function initials(name: string): string {
     ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase() ||
     '?'
   );
+}
+
+export const RETURN_STATUS_LABELS: Record<ReturnStatus, string> = {
+  REQUESTED: 'Requested',
+  APPROVED: 'Pickup scheduled',
+  PICKED_UP: 'Picked up',
+  RECEIVED: 'Received by seller',
+  REFUNDED: 'Refunded',
+  REJECTED: 'Rejected',
+  CANCELLED: 'Cancelled',
+};
+
+export const ADDRESS_LABELS: Record<AddressLabel, string> = {
+  HOME: 'Home',
+  WORK: 'Work',
+  OTHER: 'Other',
+};
+
+/** States and union territories of India, matching the API's list. */
+export const INDIAN_STATES = [
+  'Andaman and Nicobar Islands',
+  'Andhra Pradesh',
+  'Arunachal Pradesh',
+  'Assam',
+  'Bihar',
+  'Chandigarh',
+  'Chhattisgarh',
+  'Dadra and Nagar Haveli and Daman and Diu',
+  'Delhi',
+  'Goa',
+  'Gujarat',
+  'Haryana',
+  'Himachal Pradesh',
+  'Jammu and Kashmir',
+  'Jharkhand',
+  'Karnataka',
+  'Kerala',
+  'Ladakh',
+  'Lakshadweep',
+  'Madhya Pradesh',
+  'Maharashtra',
+  'Manipur',
+  'Meghalaya',
+  'Mizoram',
+  'Nagaland',
+  'Odisha',
+  'Puducherry',
+  'Punjab',
+  'Rajasthan',
+  'Sikkim',
+  'Tamil Nadu',
+  'Telangana',
+  'Tripura',
+  'Uttar Pradesh',
+  'Uttarakhand',
+  'West Bengal',
+] as const;
+
+/** Rupees typed by the customer (e.g. "1,299.50") to paise, or null when it is not a valid amount. */
+export function rupeesToPaise(input: string): number | null {
+  const cleaned = input.replace(/[,\s₹]/g, '');
+  if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return null;
+  return Math.round(Number(cleaned) * 100);
 }

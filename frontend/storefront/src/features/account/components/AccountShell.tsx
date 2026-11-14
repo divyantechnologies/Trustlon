@@ -11,19 +11,16 @@ import { MarketplaceDialogs } from '@/features/home/components/MarketplaceDialog
 import { useHome } from '@/features/home/home-provider';
 import { Skeleton } from './ui';
 
-type NavItem =
-  | { label: string; href: string }
-  | { label: string; action: 'wishlist' }
-  | { label: string; soon: true };
+type NavItem = { label: string; href: string; count?: 'wishlist' } | { label: string; soon: true };
 
 /** Sections from the build spec. Items marked soon are listed so customers know they are coming. */
 const NAV: NavItem[] = [
   { label: 'Overview', href: '/account' },
   { label: 'Orders', href: '/account/orders' },
-  { label: 'Returns', soon: true },
-  { label: 'Wishlist', action: 'wishlist' },
-  { label: 'Price alerts', soon: true },
-  { label: 'Addresses', soon: true },
+  { label: 'Returns', href: '/account/returns' },
+  { label: 'Wishlist', href: '/account/wishlist', count: 'wishlist' },
+  { label: 'Price alerts', href: '/account/price-alerts' },
+  { label: 'Addresses', href: '/account/addresses' },
   { label: 'Wallet', soon: true },
   { label: 'Reviews', soon: true },
   { label: 'B2B', soon: true },
@@ -62,24 +59,17 @@ function AccountSidebar({ onSignOut }: { onSignOut: () => void }) {
                 )}
               >
                 {item.label}
-              </Link>
-            ) : 'action' in item ? (
-              <button
-                type="button"
-                onClick={() => home.setPanel('wishlist')}
-                className={cn(
-                  itemClass,
-                  focusRing,
-                  'bg-white text-navy hover:bg-navy-50 lg:bg-transparent',
-                )}
-              >
-                {item.label}
-                {home.wishlist.length > 0 && (
-                  <span className="rounded-full bg-teal-50 px-2 text-xs text-teal-600">
+                {item.count === 'wishlist' && home.wishlist.length > 0 && (
+                  <span
+                    className={cn(
+                      'rounded-full px-2 text-xs',
+                      isActive(item.href) ? 'bg-white/15 text-white' : 'bg-teal-50 text-teal-600',
+                    )}
+                  >
                     {home.wishlist.length}
                   </span>
                 )}
-              </button>
+              </Link>
             ) : (
               <span
                 aria-disabled="true"

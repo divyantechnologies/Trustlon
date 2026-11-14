@@ -63,7 +63,7 @@ describe('product search orchestration', () => {
         q,
         autocorrect: false,
         category: 'audio',
-        store: 'soundspace',
+        store: ['soundspace'],
         minPricePaise: 10,
         maxPricePaise: 500,
         inStock: true,

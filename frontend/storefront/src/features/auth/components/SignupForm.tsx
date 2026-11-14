@@ -45,6 +45,7 @@ export function SignupForm() {
       mobileCountry: DEFAULT_COUNTRY,
       mobileNational: '',
       password: '',
+      confirmPassword: '',
       referralCode: initialReferral,
       acceptTerms: false,
       marketingOptIn: false,
@@ -216,10 +217,18 @@ export function SignupForm() {
             showLabel={t.common.show}
             hideLabel={t.common.hide}
             error={errors.password?.message}
-            {...register('password')}
+            {...register('password', { deps: formState.touchedFields.confirmPassword ? ['confirmPassword'] : [] })}
           />
           <PasswordRequirements password={password} />
         </div>
+        <PasswordField
+          label={t.fields.confirmPassword}
+          autoComplete="new-password"
+          showLabel={t.common.show}
+          hideLabel={t.common.hide}
+          error={errors.confirmPassword?.message}
+          {...register('confirmPassword')}
+        />
 
         {showReferral ? (
           <TextField

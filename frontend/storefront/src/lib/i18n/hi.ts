@@ -36,7 +36,8 @@ export const hi: Dictionary = {
     country: 'देश या क्षेत्र',
     password: 'पासवर्ड',
     newPassword: 'नया पासवर्ड',
-    confirmPassword: 'नए पासवर्ड की पुष्टि करें',
+    confirmPassword: 'पासवर्ड की पुष्टि करें',
+    confirmNewPassword: 'नए पासवर्ड की पुष्टि करें',
     referralCode: 'रेफ़रल कोड',
   },
   placeholders: {
@@ -51,6 +52,7 @@ export const hi: Dictionary = {
     password: 'आपका पासवर्ड सभी शर्तें पूरी नहीं करता',
     passwordRequired: 'अपना पासवर्ड दर्ज करें',
     passwordsMismatch: 'पासवर्ड मेल नहीं खाते',
+    confirmPasswordRequired: 'अपना पासवर्ड दोबारा डालें',
     referral: 'रेफ़रल कोड मान्य नहीं है',
     terms: 'आगे बढ़ने के लिए सेवा की शर्तें और गोपनीयता नीति स्वीकार करें',
   },

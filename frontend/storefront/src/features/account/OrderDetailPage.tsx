@@ -9,7 +9,7 @@ import { formatInternational } from '@/lib/phone';
 import { accountApi } from './api';
 import { CancelDialog } from './components/CancelDialog';
 import { TrackingTimeline } from './components/TrackingTimeline';
-import { Panel, Skeleton, StatusChip, Thumb } from './components/ui';
+import { Panel, ReturnStatusChip, Skeleton, StatusChip, Thumb } from './components/ui';
 import { deliveryNote, formatDate, formatDateTime, formatMoney, PAYMENT_LABELS } from './format';
 import type { OrderDetail, SubOrder } from './types';
 
@@ -158,6 +158,15 @@ function SubOrderPanel({
                   Cancel item
                 </button>
               )}
+              {actions.returnEligibleUntil && (
+                <Link
+                  href={`/account/returns/new?subOrder=${subOrder.id}`}
+                  className={secondaryAction}
+                >
+                  <Icon name="return" className="h-4 w-4" />
+                  Return items
+                </Link>
+              )}
               <InvoiceButton subOrder={subOrder} />
               <Link href="/browse/help" className={secondaryAction}>
                 Need help?
@@ -168,6 +177,21 @@ function SubOrderPanel({
                 <Icon name="return" className="h-4 w-4 text-teal-600" />
                 Eligible for return until {formatDate(actions.returnEligibleUntil)}
               </p>
+            )}
+            {subOrder.returns.length > 0 && (
+              <ul className="space-y-1 text-sm">
+                {subOrder.returns.map((item) => (
+                  <li key={item.id} className="flex flex-wrap items-center gap-2">
+                    <ReturnStatusChip status={item.status} />
+                    <Link
+                      href={`/account/returns/${item.id}`}
+                      className="text-teal-600 hover:underline"
+                    >
+                      Return #{item.returnNumber}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             )}
             {actions.canCancel && (
               <p className="text-xs text-slate-500">

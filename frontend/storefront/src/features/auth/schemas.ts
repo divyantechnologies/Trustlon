@@ -28,6 +28,7 @@ export const signupSchema = (t: Dictionary) =>
       mobileCountry: z.string(),
       mobileNational: z.string(),
       password: z.string().refine(meetsPasswordRules, t.validation.password),
+      confirmPassword: z.string(),
       referralCode: z
         .string()
         .trim()
@@ -38,6 +39,13 @@ export const signupSchema = (t: Dictionary) =>
     .superRefine((values, ctx) => {
       if (!phoneFromValues(values.mobileCountry, values.mobileNational)) {
         ctx.addIssue({ code: 'custom', path: ['mobileNational'], message: t.validation.mobile });
+      }
+      if (values.confirmPassword !== values.password) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['confirmPassword'],
+          message: values.confirmPassword ? t.validation.passwordsMismatch : t.validation.confirmPasswordRequired,
+        });
       }
     });
 export type SignupValues = z.infer<ReturnType<typeof signupSchema>>;

@@ -95,10 +95,11 @@ model SubOrder {
   createdAt           DateTime       @default(now()) @map("created_at")
   updatedAt           DateTime       @updatedAt @map("updated_at")
 
-  order  Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  vendor Vendor          @relation(fields: [vendorId], references: [id])
-  items  OrderItem[]
-  events ShipmentEvent[]
+  order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  vendor  Vendor          @relation(fields: [vendorId], references: [id])
+  items   OrderItem[]
+  events  ShipmentEvent[]
+  returns ReturnRequest[]
 
   @@index([orderId])
   @@index([vendorId, status])
@@ -122,7 +123,8 @@ model OrderItem {
   unitPricePaise Int     @map("unit_price_paise")
   unitMrpPaise   Int     @map("unit_mrp_paise")
 
-  subOrder SubOrder @relation(fields: [subOrderId], references: [id], onDelete: Cascade)
+  subOrder    SubOrder     @relation(fields: [subOrderId], references: [id], onDelete: Cascade)
+  returnItems ReturnItem[]
 
   @@index([subOrderId])
   @@index([productId])

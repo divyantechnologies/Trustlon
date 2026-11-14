@@ -1,0 +1,111 @@
+enum ReturnStatus {
+  REQUESTED
+  APPROVED
+  PICKED_UP
+  RECEIVED
+  REFUNDED
+  REJECTED
+  CANCELLED
+}
+
+enum ReturnReason {
+  DAMAGED
+  DEFECTIVE
+  WRONG_ITEM
+  NOT_AS_DESCRIBED
+  SIZE_OR_FIT
+  MISSING_PARTS
+  NO_LONGER_NEEDED
+  OTHER
+}
+
+enum ReturnRefundMethod {
+  ORIGINAL_PAYMENT
+  WALLET
+}
+
+/// A customer's request to send back items from one delivered sub-order.
+model ReturnRequest {
+  id                 String             @id @default(uuid()) @db.Uuid
+  returnNumber       String             @unique @map("return_number") @db.VarChar(24)
+  userId             String             @map("user_id") @db.Uuid
+  subOrderId         String             @map("sub_order_id") @db.Uuid
+  status             ReturnStatus       @default(REQUESTED)
+  reason             ReturnReason
+  comments           String?            @db.VarChar(500)
+  /// Snapshot of the pickup address at the time of the request.
+  pickupAddress      Json               @map("pickup_address")
+  refundMethod       ReturnRefundMethod @map("refund_method")
+  refundAmountPaise  Int                @map("refund_amount_paise")
+  refundReference    String?            @map("refund_reference") @db.VarChar(80)
+  rejectionReason    String?            @map("rejection_reason") @db.VarChar(300)
+  pickupScheduledFor DateTime?          @map("pickup_scheduled_for")
+  requestedAt        DateTime           @default(now()) @map("requested_at")
+  approvedAt         DateTime?          @map("approved_at")
+  pickedUpAt         DateTime?          @map("picked_up_at")
+  receivedAt         DateTime?          @map("received_at")
+  refundedAt         DateTime?          @map("refunded_at")
+  rejectedAt         DateTime?          @map("rejected_at")
+  cancelledAt        DateTime?          @map("cancelled_at")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  subOrder SubOrder      @relation(fields: [subOrderId], references: [id])
+  items    ReturnItem[]
+  photos   ReturnPhoto[]
+  events   ReturnEvent[]
+
+  @@index([userId, requestedAt])
+  @@index([subOrderId])
+  @@index([status])
+  @@map("return_requests")
+}
+
+model ReturnItem {
+  id             String @id @default(uuid()) @db.Uuid
+  returnId       String @map("return_id") @db.Uuid
+  orderItemId    String @map("order_item_id") @db.Uuid
+  quantity       Int
+  unitPricePaise Int    @map("unit_price_paise")
+
+  returnRequest ReturnRequest @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  orderItem     OrderItem     @relation(fields: [orderItemId], references: [id])
+
+  @@unique([returnId, orderItemId])
+  @@index([orderItemId])
+  @@map("return_items")
+}
+
+/// Photo uploaded with a return. Uploaded first, then attached when the return is submitted.
+model ReturnPhoto {
+  id          String   @id @default(uuid()) @db.Uuid
+  /// Uploader; checked before a photo can be attached or viewed.
+  userId      String   @map("user_id") @db.Uuid
+  returnId    String?  @map("return_id") @db.Uuid
+  storageKey  String   @unique @map("storage_key") @db.VarChar(200)
+  contentType String   @map("content_type") @db.VarChar(40)
+  sizeBytes   Int      @map("size_bytes")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  returnRequest ReturnRequest? @relation(fields: [returnId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([returnId])
+  @@map("return_photos")
+}
+
+/// Timeline of a return, newest last.
+model ReturnEvent {
+  id         String       @id @default(uuid()) @db.Uuid
+  returnId   String       @map("return_id") @db.Uuid
+  status     ReturnStatus
+  title      String       @db.VarChar(120)
+  note       String?      @db.VarChar(300)
+  occurredAt DateTime     @map("occurred_at")
+
+  returnRequest ReturnRequest @relation(fields: [returnId], references: [id], onDelete: Cascade)
+
+  @@index([returnId, occurredAt])
+  @@map("return_events")
+}

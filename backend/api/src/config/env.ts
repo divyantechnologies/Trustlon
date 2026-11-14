@@ -27,6 +27,8 @@ export const envSchema = z
     OTP_RESEND_SECONDS: z.coerce.number().int().nonnegative().default(30),
 
     COOKIE_SECURE: bool,
+    /** Folder for uploaded files such as return photos. Relative paths start at the API folder. */
+    STORAGE_DIR: z.string().min(1).default('storage'),
     COOKIE_DOMAIN: z
       .string()
       .optional()

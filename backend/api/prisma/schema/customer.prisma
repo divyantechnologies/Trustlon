@@ -1,0 +1,57 @@
+enum AddressLabel {
+  HOME
+  WORK
+  OTHER
+}
+
+/// Saved delivery and pickup addresses. Orders keep their own snapshot, so these can be edited freely.
+model Address {
+  id        String       @id @default(uuid()) @db.Uuid
+  userId    String       @map("user_id") @db.Uuid
+  label     AddressLabel @default(HOME)
+  /// Shown instead of the label when the label is OTHER, e.g. "Parents' home".
+  labelName String?      @map("label_name") @db.VarChar(30)
+  fullName  String       @map("full_name") @db.VarChar(100)
+  /// E.164, Indian mobile numbers only.
+  mobile    String       @db.VarChar(16)
+  line1     String       @db.VarChar(120)
+  line2     String?      @db.VarChar(120)
+  landmark  String?      @db.VarChar(80)
+  city      String       @db.VarChar(80)
+  state     String       @db.VarChar(60)
+  pincode   String       @db.Char(6)
+  isDefault Boolean      @default(false) @map("is_default")
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isDefault])
+  @@map("addresses")
+}
+
+enum PriceAlertStatus {
+  ACTIVE
+  PAUSED
+}
+
+/// Tells the customer when a product drops to or below their target price.
+model PriceAlert {
+  id                   String           @id @default(uuid()) @db.Uuid
+  userId               String           @map("user_id") @db.Uuid
+  productId            String           @map("product_id") @db.Uuid
+  targetPricePaise     Int              @map("target_price_paise")
+  priceAtCreationPaise Int              @map("price_at_creation_paise")
+  status               PriceAlertStatus @default(ACTIVE)
+  /// Set by the notification job when the customer has been told about a drop.
+  lastNotifiedAt       DateTime?        @map("last_notified_at")
+  createdAt            DateTime         @default(now()) @map("created_at")
+  updatedAt            DateTime         @updatedAt @map("updated_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([productId, status])
+  @@map("price_alerts")
+}

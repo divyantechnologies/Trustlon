@@ -34,7 +34,8 @@ export const en = {
     country: 'Country or region',
     password: 'Password',
     newPassword: 'New password',
-    confirmPassword: 'Confirm new password',
+    confirmPassword: 'Confirm password',
+    confirmNewPassword: 'Confirm new password',
     referralCode: 'Referral code',
   },
   placeholders: {
@@ -49,6 +50,7 @@ export const en = {
     password: 'Your password does not meet all the requirements',
     passwordRequired: 'Enter your password',
     passwordsMismatch: 'Passwords do not match',
+    confirmPasswordRequired: 'Enter your password again',
     referral: 'Referral code is not valid',
     terms: 'Accept the Terms of Service and Privacy Policy to continue',
   },

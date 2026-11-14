@@ -143,7 +143,7 @@ export function ResetStepper() {
             <PasswordRequirements password={newPassword} />
           </div>
           <PasswordField
-            label={t.fields.confirmPassword}
+            label={t.fields.confirmNewPassword}
             autoComplete="new-password"
             showLabel={t.common.show}
             hideLabel={t.common.hide}

@@ -68,6 +68,7 @@ model Product {
   cartItems      CartItem[]
   wishlistItems  WishlistItem[]
   recentlyViewed RecentlyViewed[]
+  priceAlerts    PriceAlert[]
 
   @@index([categoryId, status])
   @@index([vendorId, status])

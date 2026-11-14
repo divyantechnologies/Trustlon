@@ -122,3 +122,34 @@ export async function apiDownload(path: string, fallbackFileName: string): Promi
   link.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+/** Sends a signed-in request without a JSON body, renewing the session once if it expired. */
+async function sendAuthed(path: string, init: RequestInit = {}): Promise<Response> {
+  const send = (token: string | null) =>
+    fetch(`${API_BASE}${path}`, {
+      ...init,
+      credentials: 'include',
+      headers: { Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    });
+  let response = await send(accessToken);
+  if (response.status === 401) {
+    const renewed = await refreshOnce();
+    if (renewed) response = await send(renewed);
+  }
+  return response;
+}
+
+/** Uploads a file as multipart form data, e.g. a return photo. */
+export async function apiUpload<T>(path: string, form: FormData): Promise<T> {
+  const response = await sendAuthed(path, { method: 'POST', body: form });
+  if (response.status === 413) throw new ApiError(413, 'This file is too large.');
+  if (!response.ok) throw await errorFrom(response);
+  return (await response.json()) as T;
+}
+
+/** Reads a signed-in file, e.g. a private photo, as a Blob. */
+export async function apiBlob(path: string, signal?: AbortSignal): Promise<Blob> {
+  const response = await sendAuthed(path, { signal });
+  if (!response.ok) throw await errorFrom(response);
+  return response.blob();
+}
