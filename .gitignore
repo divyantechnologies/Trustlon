@@ -1,6 +1,6 @@
 node_modules/
 dist/
-backend/api/storage/
+backend/storage/
 .next/
 .next-dev/
 out/

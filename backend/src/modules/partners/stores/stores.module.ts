@@ -1,0 +1,15 @@
+import { Module } from '@nestjs/common';
+import { CatalogModule } from '../../catalog/catalog.module';
+import { LocationModule } from '../../hyperlocal/location/location.module';
+import { StoresController } from './stores.controller';
+import { StoresService } from './stores.service';
+import { SellerDeliveryController } from './seller-delivery.controller';
+import { SellerDeliveryService } from './seller-delivery.service';
+
+@Module({
+  imports: [CatalogModule, LocationModule],
+  controllers: [StoresController, SellerDeliveryController],
+  providers: [StoresService, SellerDeliveryService],
+  exports: [StoresService],
+})
+export class StoresModule {}

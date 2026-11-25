@@ -4,8 +4,9 @@
   "version": "0.1.0",
   "description": "Trustlon Marketplace monorepo",
   "workspaces": [
-    "backend/*",
-    "frontend/*"
+    "backend",
+    "storefront",
+    "super-admin"
   ],
   "engines": {
     "node": ">=20.11"
@@ -13,11 +14,11 @@
   "scripts": {
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
-    "db:migrate": "npm run prisma:migrate -w backend/api --",
-    "db:seed": "npm run prisma:seed -w backend/api",
-    "dev:api": "npm run start:dev -w backend/api",
-    "dev:storefront": "npm run dev -w frontend/storefront",
-    "dev:admin": "npm run dev -w frontend/admin",
+    "db:migrate": "npm run prisma:migrate -w backend --",
+    "db:seed": "npm run prisma:seed -w backend",
+    "dev:api": "npm run start:dev -w backend",
+    "dev:storefront": "npm run dev -w storefront",
+    "dev:super-admin": "npm run dev -w super-admin",
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
