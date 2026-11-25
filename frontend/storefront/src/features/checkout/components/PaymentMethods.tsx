@@ -1,6 +1,0 @@
-import type { CheckoutPayment } from '../types';
-import { money } from '../../product/helpers';
-const labels: Record<CheckoutPayment, string> = { UPI: 'UPI', CARD: 'Cards', NETBANKING: 'Net banking', WALLET: 'Wallets', EMI: 'EMI', COD: 'Cash on delivery', TRUSTLON_WALLET: 'Trustlon Wallet' };
-export function PaymentMethods({ available, value, walletBalance, onChange }: { available: CheckoutPayment[]; value?: CheckoutPayment; walletBalance: number; onChange: (value: CheckoutPayment) => void }) {
-  return <fieldset className="space-y-3"><legend className="mb-3 text-xl font-semibold">Payment method</legend>{(Object.keys(labels) as CheckoutPayment[]).filter(method => method !== 'COD' || available.includes(method)).map(method => <label key={method} className="flex min-h-11 items-center gap-3 rounded-xl border border-slate-200 p-4"><input type="radio" name="payment" checked={value === method} disabled={!available.includes(method)} onChange={() => onChange(method)} className="accent-teal-700 focus-visible:ring-2 focus-visible:ring-teal-600" /><span>{labels[method]}{method === 'TRUSTLON_WALLET' && <span className="block text-xs text-slate-500">Balance {money(walletBalance / 100)}{!available.includes(method) ? ' · Insufficient balance' : ''}</span>}</span></label>)}</fieldset>;
-}
