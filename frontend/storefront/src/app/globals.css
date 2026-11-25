@@ -1,0 +1,35 @@
+@import '../design-system/styles/utilities.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.pdp { background: #fafaf8; font-family: Inter, sans-serif; }
+.pdp :is(button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 3px;
+}
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+@layer base {
+  :root {
+    --font-sans: 'Inter';
+    --font-hindi: 'Noto Sans Devanagari';
+  }
+
+  body {
+    @apply bg-cream font-sans text-sm text-navy antialiased;
+  }
+
+  a:focus-visible {
+    @apply rounded-lg outline-none ring-2 ring-teal ring-offset-2;
+  }
+}
+@media (min-width: 1024px) {
+  .top-100-products {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}

@@ -1,0 +1,194 @@
+enum ProductStatus {
+  DRAFT
+  PENDING_APPROVAL
+  LIVE
+  REJECTED
+  INACTIVE
+  /// Sent back to the vendor with "Request changes" (5.4).
+  CHANGES_REQUESTED
+}
+
+enum AuthenticityStatus {
+  NOT_REQUIRED
+  FLAGGED
+  VERIFIED
+  FAILED
+}
+
+enum AttributeType {
+  TEXT
+  NUMBER
+  SELECT
+  COLOR
+  SIZE
+  BOOLEAN
+}
+
+enum SubmissionKind {
+  NEW
+  EDIT
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+}
+
+model Category {
+  id               String   @id @default(uuid()) @db.Uuid
+  slug             String   @unique @db.VarChar(80)
+  name             String   @db.VarChar(80)
+  nameHi           String?  @map("name_hi") @db.VarChar(80)
+  description      String?  @db.VarChar(500)
+  imageUrl         String?  @map("image_url")
+  parentId         String?  @map("parent_id") @db.Uuid
+  sortOrder        Int      @default(0) @map("sort_order")
+  isActive         Boolean  @default(true) @map("is_active")
+  defaultHsn       String?  @map("default_hsn") @db.VarChar(8)
+  /// Commission in basis points (1000 = 10%). Null uses the platform default.
+  commissionBps    Int?     @map("commission_bps")
+  returnWindowDays Int      @default(7) @map("return_window_days")
+  /// New and edited listings wait for Admin approval (5.4).
+  moderationRequired Boolean @default(true) @map("moderation_required")
+  codAllowed       Boolean  @default(true) @map("cod_allowed")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  products   Product[]
+  attributes CategoryAttribute[]
+
+  @@index([parentId, sortOrder])
+  @@map("categories")
+}
+
+model Product {
+  gstRateBps Int? @map("gst_rate_bps")
+  id          String        @id @default(uuid()) @db.Uuid
+  slug        String        @unique @db.VarChar(160)
+  vendorId    String        @map("vendor_id") @db.Uuid
+  categoryId  String        @map("category_id") @db.Uuid
+  name        String        @db.VarChar(200)
+  description String?
+  brand       String?       @db.VarChar(80)
+  imageUrl    String        @map("image_url")
+  images      String[]      @default([])
+  /// Selling price in paise.
+  pricePaise  Int           @map("price_paise")
+  /// Maximum retail price in paise.
+  mrpPaise    Int           @map("mrp_paise")
+  discountPercent Int       @default(0) @map("discount_percent")
+  stock       Int           @default(0)
+  status      ProductStatus @default(DRAFT)
+  badge       String?       @db.VarChar(40)
+  hsnCode     String?       @map("hsn_code") @db.VarChar(8)
+  codAllowed  Boolean       @default(true) @map("cod_allowed")
+  /// Combo / bundle product shown in the home page "Combo products" row.
+  isBundle    Boolean       @default(false) @map("is_bundle")
+  ratingAvg   Float         @default(0) @map("rating_avg")
+  ratingCount Int           @default(0) @map("rating_count")
+  salesCount  Int           @default(0) @map("sales_count")
+  /// Lower-case name, brand, seller and category, kept by the API for search.
+  searchText  String        @default("") @map("search_text")
+  rejectionReason  String?            @map("rejection_reason") @db.VarChar(500)
+  authenticity     AuthenticityStatus @default(NOT_REQUIRED)
+  authenticityNote String?            @map("authenticity_note") @db.VarChar(300)
+  submittedAt      DateTime?          @map("submitted_at")
+  approvedAt       DateTime?          @map("approved_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  deletedAt   DateTime?     @map("deleted_at")
+
+  vendor         Vendor           @relation(fields: [vendorId], references: [id])
+  category       Category         @relation(fields: [categoryId], references: [id])
+  deals          Deal[]
+  cartItems      CartItem[]
+  wishlistItems  WishlistItem[]
+  recentlyViewed RecentlyViewed[]
+  priceAlerts    PriceAlert[]
+  reviews        Review[]
+  affiliateLinks AffiliateLink[]
+  submissions    ProductSubmission[]
+
+  @@index([categoryId, status])
+  @@index([vendorId, status])
+  @@index([status, salesCount])
+  @@index([isBundle, status])
+  @@index([categoryId, brand])
+  @@map("products")
+}
+
+/// A product attribute such as size, colour or material (5.3).
+model Attribute {
+  id           String        @id @default(uuid()) @db.Uuid
+  code         String        @unique @db.VarChar(40)
+  name         String        @db.VarChar(60)
+  type         AttributeType @default(TEXT)
+  unit         String?       @db.VarChar(16)
+  /// Allowed values for SELECT, SIZE and COLOR attributes.
+  options      String[]      @default([])
+  /// Shown as a filter on category and search pages.
+  isFilterable Boolean       @default(false) @map("is_filterable")
+  /// Each value is a separate variant (e.g. size S, M, L).
+  isVariant    Boolean       @default(false) @map("is_variant")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  categories CategoryAttribute[]
+
+  @@map("attributes")
+}
+
+/// The attribute set of a category.
+model CategoryAttribute {
+  categoryId  String  @map("category_id") @db.Uuid
+  attributeId String  @map("attribute_id") @db.Uuid
+  isRequired  Boolean @default(false) @map("is_required")
+  sortOrder   Int     @default(0) @map("sort_order")
+
+  category  Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  attribute Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  @@id([categoryId, attributeId])
+  @@index([attributeId])
+  @@map("category_attributes")
+}
+
+/// HSN master (5.3). A rate change is a new row with a later effective date, so invoices
+/// keep the rate that applied on their date.
+model HsnRate {
+  id            String   @id @default(uuid()) @db.Uuid
+  code          String   @db.VarChar(8)
+  description   String   @db.VarChar(300)
+  /// GST rate in basis points (1800 = 18%).
+  gstRateBps    Int      @map("gst_rate_bps")
+  effectiveFrom DateTime @map("effective_from") @db.Date
+  createdById   String?  @map("created_by_id") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@unique([code, effectiveFrom])
+  @@map("hsn_rates")
+}
+
+/// A new listing or an edit waiting for moderation (5.4), with the changed fields.
+model ProductSubmission {
+  id          String           @id @default(uuid()) @db.Uuid
+  productId   String           @map("product_id") @db.Uuid
+  kind        SubmissionKind
+  status      SubmissionStatus @default(PENDING)
+  /// For edits: [{ field, before, after }]. Applied to the product on approval.
+  changes     Json             @default("[]")
+  submittedAt DateTime         @default(now()) @map("submitted_at")
+  decidedAt   DateTime?        @map("decided_at")
+  decidedById String?          @map("decided_by_id") @db.Uuid
+  reason      String?          @db.VarChar(500)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([status, submittedAt])
+  @@index([productId])
+  @@map("product_submissions")
+}
